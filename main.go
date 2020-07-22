@@ -1,13 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -18,18 +15,15 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/text/transform"
-
 	"github.com/mattn/go-colorable"
-	enc "github.com/mattn/go-encoding"
 	"github.com/mattn/go-runewidth"
 	"github.com/nsf/termbox-go"
 	"github.com/saracen/walker"
 )
 
-const name = "gof"
+const name = "jj"
 
-const version = "0.0.10"
+const version = "0.0.1"
 
 var revision = "HEAD"
 
@@ -56,7 +50,16 @@ var (
 	timer            *time.Timer
 	scanning         = 0
 	ignorere         *regexp.Regexp
+	fuzzy            bool
 )
+
+func filterType() string {
+	if fuzzy {
+		return "y"
+	} else {
+		return "n"
+	}
+}
 
 func env(key, def string) string {
 	if v := os.Getenv(key); v != "" {
@@ -273,7 +276,7 @@ func drawLines() {
 		tprint(0, height-2, termbox.ColorGreen, termbox.ColorDefault, string([]rune("-\\|/")[scanning%4]))
 		scanning++
 	}
-	tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d(%d)", len(current), len(files), len(selected))
+	tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d (%d) [%s]", len(current), len(files), len(selected), "fuzzy:"+filterType())
 	tprint(0, height-1, termbox.ColorBlue|termbox.AttrBold, termbox.ColorDefault, "> ")
 	tprint(2, height-1, termbox.ColorDefault|termbox.AttrBold, termbox.ColorDefault, string(input))
 	termbox.SetCursor(2+runewidth.StringWidth(string(input[0:cursorX])), height-1)
@@ -307,43 +310,6 @@ var actionKeys = []termbox.Key{
 	termbox.KeyCtrlX,
 	termbox.KeyCtrlY,
 	termbox.KeyCtrlZ,
-}
-
-func readLines(ctx context.Context, wg *sync.WaitGroup, r io.Reader) {
-	defer wg.Done()
-
-	var buf *bufio.Reader
-	if se := os.Getenv("GOF_STDIN_ENC"); se != "" {
-		if e := enc.GetEncoding(se); e != nil {
-			buf = bufio.NewReader(transform.NewReader(r, e.NewDecoder().Transformer))
-		} else {
-			buf = bufio.NewReader(r)
-		}
-	} else {
-		buf = bufio.NewReader(r)
-	}
-	files = []string{}
-
-	n := 0
-	for {
-		b, _, err := buf.ReadLine()
-		if err != nil {
-			break
-		}
-		mutex.Lock()
-		files = append(files, string(b))
-		n++
-		if n%1000 == 0 {
-			dirty = true
-			timer.Reset(duration)
-		}
-		mutex.Unlock()
-	}
-	mutex.Lock()
-	dirty = true
-	timer.Reset(duration)
-	scanning = -1
-	mutex.Unlock()
 }
 
 func listFiles(ctx context.Context, wg *sync.WaitGroup, cwd string) {
@@ -388,24 +354,46 @@ func listFiles(ctx context.Context, wg *sync.WaitGroup, cwd string) {
 }
 
 func main() {
-	var open2edit bool
+	fi, err := os.Stdin.Stat()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	fo, err := os.Stdout.Stat()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	if strings.Index(fi.Mode().String(), "p") == 0 || strings.Index(fo.Mode().String(), "p") == 0 {
+		fmt.Fprintln(os.Stderr, "err: 'jj' is simply going to work only as an independent cmd! - shane.")
+		os.Exit(1)
+	}
+	if e := env("SHELL", ""); e == "" {
+		fmt.Fprintln(os.Stderr, "err: 'jj' is simply going to work on 'linux', perhaps 'mac', not sure 'windows' .. - shane.")
+		os.Exit(1)
+	} else {
+		b, err := regexp.MatchString("bash", e)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		if !b {
+			fmt.Fprintln(os.Stderr, "wrn: 'jj' is simply going to work with 'bash', not sure others .. - shane.")
+			// os.Exit(1)
+		}
+	}
 
-	var fuzzy bool
+	var open2edit bool
+	var open2CdOrEdit bool
+
+	// var fuzzy bool
 	var root string
-	var exit int
-	var action string
-	var tapi bool
-	var tapiFunc string
 	var ignore string
 	var showVersion bool
 
 	flag.BoolVar(&fuzzy, "f", false, "Fuzzy match")
 	flag.StringVar(&root, "d", "", "Root directory")
-	flag.IntVar(&exit, "x", 1, "Exit code for cancel")
-	flag.StringVar(&action, "a", "", "Action keys")
-	flag.BoolVar(&tapi, "t", false, "Open via Vim's Terminal API")
-	flag.StringVar(&tapiFunc, "tf", "", "Terminal API's function name")
-	flag.StringVar(&ignore, "i", env(`GOF_IGNORE_PATTERN`, `^(\.git|\.hg|\.svn|_darcs|\.bzr)$`), "Ignore pattern")
+	flag.StringVar(&ignore, "i", env(`JJ_IGNORE_PATTERN`, `^(\.git|\.hg|\.svn|_darcs|\.bzr)$`), "Ignore pattern")
 	flag.BoolVar(&showVersion, "v", false, "Print the version")
 	flag.Parse()
 
@@ -416,22 +404,11 @@ func main() {
 
 	defer colorable.EnableColorsStdout(nil)()
 
-	var err error
-
 	// Make regular expression pattern to ignore files.
 	if ignore != "" {
 		ignorere, err = regexp.Compile(ignore)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-	}
-
-	// Setup terminal API.
-	tapi = tapi || tapiFunc != ""
-	if tapi {
-		if os.Getenv("VIM_TERMINAL") == "" {
-			fmt.Fprintln(os.Stderr, "-t,-tf option is only available inside Vim's terminal window")
 			os.Exit(1)
 		}
 	}
@@ -497,23 +474,10 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	isTty := isTerminal()
 	ctx, cancel := context.WithCancel(context.Background())
-	if isTty {
-		// Walk and collect files recursively.
-		go listFiles(ctx, &wg, cwd)
-	} else {
-		// Read lines from stdin.
-		go readLines(ctx, &wg, os.Stdin)
-	}
+	// Walk and collect files recursively.
+	go listFiles(ctx, &wg, cwd)
 
-	if !isTty {
-		err = startTerminal()
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-	}
 	err = termbox.Init()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -522,7 +486,6 @@ func main() {
 	termbox.SetInputMode(termbox.InputEsc)
 
 	redrawFunc()
-	actionKey := ""
 
 loop:
 	for {
@@ -531,43 +494,22 @@ loop:
 		// Polling key events
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
-			for _, ka := range strings.Split(action, ",") {
-				for i, kv := range actionKeys {
-					if ev.Key != kv {
-						continue
-					}
-					ak := fmt.Sprintf("ctrl-%c", 'a'+i)
-					if ka != ak {
-						continue
-					}
-					if cursorY >= 0 && cursorY < len(current) {
-						if len(selected) == 0 {
-							selected = append(selected, current[cursorY].name)
-						}
-						actionKey = ak
-						break loop
-					}
-				}
-			}
 			switch ev.Key {
 			case termbox.KeyEsc, termbox.KeyCtrlD, termbox.KeyCtrlC:
 				termbox.Close()
-				os.Exit(exit)
+				os.Exit(1)
 			case termbox.KeyHome, termbox.KeyCtrlA:
 				cursorX = 0
 			case termbox.KeyEnd, termbox.KeyCtrlE:
 				cursorX = len(input)
-			case termbox.KeyEnter:
+			case termbox.KeyEnter, termbox.KeyCtrlO:
 				if cursorY >= 0 && cursorY < len(current) {
 					if len(selected) == 0 {
 						selected = append(selected, current[cursorY].name)
 					}
-					break loop
-				}
-			case termbox.KeyCtrlO:
-				if cursorY >= 0 && cursorY < len(current) {
-					if len(selected) == 0 {
-						selected = append(selected, current[cursorY].name)
+					if ev.Key == termbox.KeyEnter {
+						open2CdOrEdit = true
+						break loop
 					}
 					open2edit = true
 					break loop
@@ -684,85 +626,61 @@ loop:
 
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 	termbox.Close()
-	stopTerminal()
 
 	wg.Wait()
 
 	if len(selected) == 0 {
-		os.Exit(exit)
+		os.Exit(1)
 	}
 
-	if tapi {
+	fArg := []string{}
+	if root != "" {
 		for _, f := range selected {
-			command := make([]interface{}, 0, 3)
-			if tapiFunc != "" {
-				command = append(command, "call", tapiFunc, newVimTapiCall(cwd, f, actionKey))
-			} else {
-				if !filepath.IsAbs(f) {
-					f = filepath.Join(cwd, f)
-				}
-				command = append(command, "drop", f)
-			}
-			b, err := json.Marshal(command)
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-			fmt.Printf("\x1b]51;%s\x07", string(b))
+			// fmt.Println(filepath.Join(root, f))
+			fArg = append(fArg, filepath.Join(root, f))
 		}
 	} else {
-		if action != "" {
-			fmt.Println(actionKey)
+		for _, f := range selected {
+			// fmt.Println(f)
+			fArg = append(fArg, f)
 		}
-		fArg := []string{}
-		if root != "" {
-			for _, f := range selected {
-				fmt.Println(filepath.Join(root, f))
-				fArg = append(fArg, filepath.Join(root, f))
-			}
-		} else {
-			for _, f := range selected {
-				fmt.Println(f)
-				fArg = append(fArg, f)
-			}
 
-		}
-		if open2edit {
-			cmd := exec.Command("vim", fArg...)
-			fi, err := os.Stdin.Stat()
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-			fo, err := os.Stdout.Stat()
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-			if strings.Index(fi.Mode().String(), "p") != 0 && strings.Index(fo.Mode().String(), "p") != 0 {
-				cmd.Stdin = os.Stdin
-				cmd.Stdout = os.Stdout
-				cmd.Stderr = os.Stderr
-				err = cmd.Run()
-				if err != nil {
-					fmt.Println(err)
-				}
-			}
-		}
 	}
-}
-
-type vimTapiCall struct {
-	RootDir   string `json:"root_dir"`
-	Filename  string `json:"filename"`
-	Fullpath  string `json:"fullpath"`
-	ActionKey string `json:"action_key"`
-}
-
-func newVimTapiCall(rootDir, filename, actionKey string) *vimTapiCall {
-	fullpath := filename
-	if !filepath.IsAbs(filename) {
-		fullpath = filepath.Join(rootDir, filename)
+	// shane: just care last one -if to cd -if multiple selected.
+	fs := fArg[len(fArg)-1]
+	fi, err = os.Stat(fs)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
-	return &vimTapiCall{RootDir: rootDir, Filename: filename, Fullpath: fullpath, ActionKey: actionKey}
+	if open2edit || (open2CdOrEdit && !fi.IsDir()) {
+		cmd := exec.Command("vim", fArg...)
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		err = cmd.Run()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+	} else {
+		userHome, err := os.UserHomeDir()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		f, err := os.Create(userHome + "/.jj_tmp_fs")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		_, err = f.WriteString("cd " + fs)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		os.Exit(6)
+	}
+
+	os.Exit(0)
 }

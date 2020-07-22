@@ -1,41 +1,23 @@
-# gof
-
-Go Fuzzy
-
-![](http://i.imgur.com/TGZJyGV.gif)
-
-[Open files in Vim directly (inside Vim terminal)](#vim-terminal-api)
-
-![](https://i.imgur.com/pRhl9o3.gif)
-
-## Installation
-
-    $ go get github.com/mattn/gof
+# jj
 
 ## Feature
 
-* Faster and startup
-* Working on windows
+* similar & forked from `gof` - thanks `mattn` !
+* but make it be simple: just for independent `open2edit` or `open2cd` !
+
+## Installation
+
+- `go get` from this repo
+- pls think to write `alias jj='jj || if [ $? -eq 6 ]; then $(cat "$HOME/.jj_tmp_fs"); fi'` into your `.bashrc`
 
 ## Usage
 
-* Glob files and edit the selected file with vim.
-
 ```sh
-$ vim `gof`
+$ jj
 ```
 
-* Run gof and type `CTRL-O`, then start to edit with editor.
-
-```sh
-$ gof
-```
-
-* Read from stdin
-
-```sh
-$ find /tmp | gof
-```
+* Run `jj` and type `ctrl-o`, then start to edit (`open2edit`) with `vim`, whatever was a file or dir.
+* Run `jj` and type `enter`, then start to edit (`open2edit`) with `vim` -if was a file, or quit but cd to that dir (`open2cd`) -if was a dir.
 
 ## Keyboard shortcuts
 
@@ -47,7 +29,7 @@ $ find /tmp | gof
 |<kbd>CTRL-E</kbd>,<kbd>END</kbd>                         |Go to trail of prompt               |
 |<kbd>ARROW-LEFT</kbd>                                    |Move-left cursor                    |
 |<kbd>ARROW-RIGHT</kbd>                                   |Move-right cursor                   |
-|<kbd>CTRL-O</kbd>                                        |Edit the selected file              |
+|<kbd>CTRL-O</kbd>                                        |Edit the selected file/dir          |
 |<kbd>CTRL-I</kbd>                                        |Toggle view header/trailing of lines|
 |<kbd>CTRL-L</kbd>                                        |Redraw                              |
 |<kbd>CTRL-U</kbd>                                        |Clear prompt                        |
@@ -56,60 +38,15 @@ $ find /tmp | gof
 |<kbd>DEL</kbd>                                           |Delete character on the cursor      |
 |<kbd>CTRL-Z</kbd>                                        |Toggle selection                    |
 |<kbd>CTRL-R</kbd>                                        |Toggle fuzzy option                 |
-|<kbd>Enter</kbd>                                         |Decide                              |
+|<kbd>Enter</kbd>                                         |Decide (`open2edit` or `open2cd`)   |
 |<kbd>CTRL-D</kbd>,<kbd>CTRL-C</kbd>,<kbd>ESC</kbd>       |Cancel                              |
 
 ## Options
 
 |Option        |Description                      |
 |--------------|---------------------------------|
-|-f            |Fuzzy match                      |
-|-x            |Exit code for cancel (default: 1)|
+|-f            |Fuzzy match (warn: maybe slow)   |
 |-d [path]     |Specify root directory           |
-|-a            |Register action keys             |
-|-t            |Open via Vim's Terminal API      |
-|-tf [funcname]|Terminal API's function name     |
-
-## Vim Terminal API
-
-* `gof -t` or `gof -tf [prefix]` opens selected files in Vim using [Terminal API](https://vim-jp.org/vimdoc-en/terminal.html#terminal-api). 
-
-* If you want to add `-t` option automatically whether you are inside Vim
-  terminal or not, you can define alias like this
-
-```sh
-gof() {
-  if [ "$VIM_TERMINAL" ]; then
-    command gof -t "$@"
-  else
-    command gof "$@"
-  fi
-}
-```
-
-* If you are familiar with Vim script, you may want to send `["call", "[funcname]", "[file information]"]` instead of `["drop", "[filename]"]`. You can use `gof -tf [funcname]` to send `call` command
-
-```
-[file information] = {
-  "filename": [relative filename path (string)],
-  "fullpath": [absolute filename path (string)],
-  "root_dir": [root directory (string)],
-  "action_key": [action key of -a (string)]
-}
-```
-
-* You can define utility Vim command `:Gof`. Quickly calls `gof -t` command and
-  opens selected files in Vim buffer
-
-```vim
-if executable('gof')
-  command! -nargs=* Gof term ++close gof -t
-endif
-```
-
-![](https://i.imgur.com/jvfuOxh.gif)
-
-* Please try [vargs](https://github.com/tyru/vargs) if you want to communicate easily with Vim terminal API from shell
 
 ## License
 
@@ -117,4 +54,10 @@ MIT
 
 ## Author
 
+Shane.XB.Qian based on `gof` by:
 Yasuhiro Matsumoto (a.k.a mattn)
+
+## NOTE
+
+mostly just a play to myself: only tested linux/bash and default with vim.
+but to simple cases: it should be good / tricky to quickly jump and edit like some shell or sth do ..
