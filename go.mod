@@ -1,4 +1,4 @@
-module github.com/Shane-XB-Qian/jj.git
+module github.com/Shane-XB-Qian/jj
 
 go 1.12
 
