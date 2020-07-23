@@ -49,6 +49,9 @@ $ jj
 |-f            |Fuzzy match (warn: maybe slow)   |
 |-d [path]     |Specify root directory           |
 
+- `option` if ran from `alias` would not work, but mostly cur pwd should be just fine.
+- `fuzzy` filter can be switched when in `jj` by `ctrl-r`, but warn: fuzzy maybe slow.
+
 ## License
 
 MIT
