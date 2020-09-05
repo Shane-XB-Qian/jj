@@ -39,6 +39,7 @@ $ jj
 |<kbd>DEL</kbd>                                           |Delete character on the cursor      |
 |<kbd>CTRL-Z</kbd>                                        |Toggle selection                    |
 |<kbd>CTRL-R</kbd>                                        |Toggle fuzzy option                 |
+|<kbd>CTRL-F</kbd>                                        |Toggle dirOnly option               |
 |<kbd>Enter</kbd>                                         |Decide : `open2edit` / `open2cd`    |
 |<kbd>CTRL-D</kbd>,<kbd>CTRL-C</kbd>,<kbd>ESC</kbd>       |Cancel                              |
 
@@ -49,8 +50,9 @@ $ jj
 |-f            |Fuzzy match (warn: maybe slow)   |
 |-d [path]     |Specify root directory           |
 
-- `option` if ran from `alias` would not work, but mostly cur pwd should be just fine.
+- `Option` if ran from `alias` would Not work, but mostly cur pwd should be just fine.
 - `fuzzy` filter can be switched when in `jj` by `ctrl-r`, but warn: fuzzy maybe slow.
+- `dirOnly` btw: if to display/show dir only can be switched when in `jj` by `ctrl-f`.
 
 ## License
 

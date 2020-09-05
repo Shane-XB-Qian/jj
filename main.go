@@ -51,14 +51,47 @@ var (
 	scanning         = 0
 	ignorere         *regexp.Regexp
 	fuzzy            bool
+	dirOnly          bool
 )
 
-func filterType() string {
+func fuzzyFilterFlag() string {
 	if fuzzy {
 		return "y"
 	} else {
 		return "n"
 	}
+}
+
+func dirOnlyFilterFlag() string {
+	if dirOnly {
+		return "y"
+	} else {
+		return "n"
+	}
+}
+
+func filterIfDirOnly() []string {
+	// mutex.Lock()
+	// defer mutex.Unlock()
+	if !dirOnly {
+		return files
+	}
+	fs := files
+	tmp := []string{}
+	for _, f := range fs {
+		fi, err := os.Stat(f)
+		if err != nil {
+			// fmt.Fprintln(os.Stderr, err)
+			// os.Exit(1)
+			continue
+			// XXX: may fail - just ignore such ?
+			// shane: mostly looks due to auth ?!
+		}
+		if fi.IsDir() {
+			tmp = append(tmp, f)
+		}
+	}
+	return tmp
 }
 
 func env(key, def string) string {
@@ -82,7 +115,7 @@ func tprintf(x, y int, fg, bg termbox.Attribute, format string, args ...interfac
 
 func filter(fuzzy bool) {
 	mutex.Lock()
-	fs := files
+	fs := filterIfDirOnly()
 	inp := input
 	sel := selected
 	mutex.Unlock()
@@ -276,7 +309,7 @@ func drawLines() {
 		tprint(0, height-2, termbox.ColorGreen, termbox.ColorDefault, string([]rune("-\\|/")[scanning%4]))
 		scanning++
 	}
-	tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d (%d) [%s]", len(current), len(files), len(selected), "fuzzy:"+filterType())
+	tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d (%d) [%s] [%s]", len(current), len(files), len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag())
 	tprint(0, height-1, termbox.ColorBlue|termbox.AttrBold, termbox.ColorDefault, "> ")
 	tprint(2, height-1, termbox.ColorDefault|termbox.AttrBold, termbox.ColorDefault, string(input))
 	termbox.SetCursor(2+runewidth.StringWidth(string(input[0:cursorX])), height-1)
@@ -584,6 +617,9 @@ loop:
 				}
 			case termbox.KeyCtrlR:
 				fuzzy = !fuzzy
+				update = true
+			case termbox.KeyCtrlF:
+				dirOnly = !dirOnly
 				update = true
 			default:
 				if ev.Key == termbox.KeySpace {
