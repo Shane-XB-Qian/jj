@@ -55,7 +55,7 @@ $ jj
 - `fuzzy` filter can be switched when in `jj` by `ctrl-r`, but warn: fuzzy maybe slow.
 - `dirOnly` btw: if to display/show dir only can be switched when in `jj` by `ctrl-f`.
 - `mruHist` btw: if to display/show mru hist can be switched when in `jj` by `ctrl-v`.
-- `mruHist` btw: hist of mru /from newer (bottom) to older/ - may had dup items in it.
+- `mruHist` btw: mostly is a hist -vs- mru (latest at bottom) - so may had dup items..
 
 ## License
 
