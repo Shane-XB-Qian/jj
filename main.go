@@ -60,7 +60,7 @@ func fuzzyFilterFlag() string {
 	if fuzzy {
 		return "Y"
 	} else {
-		return "n"
+		return "N"
 	}
 }
 
@@ -68,7 +68,7 @@ func dirOnlyFilterFlag() string {
 	if dirOnly {
 		return "Y"
 	} else {
-		return "n"
+		return "N"
 	}
 }
 
@@ -76,7 +76,7 @@ func mruHistFlag() string {
 	if mruHist {
 		return "Y"
 	} else {
-		return "n"
+		return "N"
 	}
 }
 
@@ -370,7 +370,7 @@ func drawLines() {
 		tprint(0, height-2, termbox.ColorGreen, termbox.ColorDefault, string([]rune("-\\|/")[scanning%4]))
 		scanning++
 	}
-	tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d (%d) [%s] [%s] [%s]", len(current), len(files), len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag())
+	tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d (%d)z [%s]r [%s]f [%s]v", len(current), len(files), len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag())
 	tprint(0, height-1, termbox.ColorBlue|termbox.AttrBold, termbox.ColorDefault, "> ")
 	tprint(2, height-1, termbox.ColorDefault|termbox.AttrBold, termbox.ColorDefault, string(input))
 	termbox.SetCursor(2+runewidth.StringWidth(string(input[0:cursorX])), height-1)
