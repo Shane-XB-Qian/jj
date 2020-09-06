@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"flag"
@@ -52,11 +53,12 @@ var (
 	ignorere         *regexp.Regexp
 	fuzzy            bool
 	dirOnly          bool
+	mruHist          bool
 )
 
 func fuzzyFilterFlag() string {
 	if fuzzy {
-		return "y"
+		return "Y"
 	} else {
 		return "n"
 	}
@@ -64,19 +66,77 @@ func fuzzyFilterFlag() string {
 
 func dirOnlyFilterFlag() string {
 	if dirOnly {
-		return "y"
+		return "Y"
 	} else {
 		return "n"
 	}
 }
 
-func filterIfDirOnly() []string {
+func mruHistFlag() string {
+	if mruHist {
+		return "Y"
+	} else {
+		return "n"
+	}
+}
+
+func filesIfMru() []string {
+	// mutex.Lock()
+	// defer mutex.Unlock()
+	if !mruHist {
+		return files
+	}
+	userHome, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	f, err := os.Open(userHome + "/.jj_mru_fs")
+	if err != nil {
+		// fmt.Fprintln(os.Stderr, err)
+		// os.Exit(1)
+		return nil
+		// shane: mostly failed if not existed ?
+	}
+	defer f.Close()
+	tmp := []string{}
+	sc := bufio.NewScanner(f)
+	for sc.Scan() {
+		// fmt.Println(sc.Text())
+		tmp = append(tmp, sc.Text())
+	}
+	if err := sc.Err(); err != nil {
+		// fmt.Fprintln(os.Stderr, err)
+		// os.Exit(1)
+		return nil
+		// shane: somehow failed - return nil whatever ?
+	}
+	// shane: to make last mru item showed at the list bottom.
+	tmp2 := []string{}
+	tmp_len := len(tmp)
+	if tmp_len > 0 {
+		for i := tmp_len - 1; i >= 0; i-- {
+			// shane: to make mru list showed as rel path of cwd ?
+			// if rl_p, err := filepath.Rel(cwd, tmp[i]); err == nil {
+			// 	tmp2 = append(tmp2, rl_p)
+			// } else {
+			// 	tmp2 = append(tmp2, tmp[i])
+			// }
+			tmp2 = append(tmp2, tmp[i])
+		}
+	} else {
+		return nil
+	}
+	return tmp2
+}
+
+func filterIfDirOnly(fs []string) []string {
 	// mutex.Lock()
 	// defer mutex.Unlock()
 	if !dirOnly {
-		return files
+		return fs
 	}
-	fs := files
+	// fs := files
 	tmp := []string{}
 	for _, f := range fs {
 		fi, err := os.Stat(f)
@@ -115,7 +175,8 @@ func tprintf(x, y int, fg, bg termbox.Attribute, format string, args ...interfac
 
 func filter(fuzzy bool) {
 	mutex.Lock()
-	fs := filterIfDirOnly()
+	fs := filesIfMru()
+	fs = filterIfDirOnly(fs)
 	inp := input
 	sel := selected
 	mutex.Unlock()
@@ -309,7 +370,7 @@ func drawLines() {
 		tprint(0, height-2, termbox.ColorGreen, termbox.ColorDefault, string([]rune("-\\|/")[scanning%4]))
 		scanning++
 	}
-	tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d (%d) [%s] [%s]", len(current), len(files), len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag())
+	tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d (%d) [%s] [%s] [%s]", len(current), len(files), len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag())
 	tprint(0, height-1, termbox.ColorBlue|termbox.AttrBold, termbox.ColorDefault, "> ")
 	tprint(2, height-1, termbox.ColorDefault|termbox.AttrBold, termbox.ColorDefault, string(input))
 	termbox.SetCursor(2+runewidth.StringWidth(string(input[0:cursorX])), height-1)
@@ -621,6 +682,9 @@ loop:
 			case termbox.KeyCtrlF:
 				dirOnly = !dirOnly
 				update = true
+			case termbox.KeyCtrlV:
+				mruHist = !mruHist
+				update = true
 			default:
 				if ev.Key == termbox.KeySpace {
 					ev.Ch = ' '
@@ -674,6 +738,7 @@ loop:
 		for _, f := range selected {
 			// fmt.Println(filepath.Join(root, f))
 			fArg = append(fArg, filepath.Join(root, f))
+			// XXX: /shane/ should use 'cwd' instead of 'root' here ?
 		}
 	} else {
 		for _, f := range selected {
@@ -682,6 +747,31 @@ loop:
 		}
 
 	}
+
+	userHome, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	f, err := os.OpenFile(userHome+"/.jj_mru_fs", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0600)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	for _, fa := range fArg {
+		fa_abs, err := filepath.Abs(fa)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		_, err = f.WriteString(fa_abs + "\n")
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+	}
+	f.Close()
+
 	// shane: just care last one -if to cd -if multiple selected.
 	fs := fArg[len(fArg)-1]
 	fi, err = os.Stat(fs)
@@ -700,11 +790,6 @@ loop:
 			os.Exit(1)
 		}
 	} else {
-		userHome, err := os.UserHomeDir()
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
 		f, err := os.Create(userHome + "/.jj_tmp_fs")
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -715,6 +800,7 @@ loop:
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
+		f.Close()
 		os.Exit(6)
 	}
 

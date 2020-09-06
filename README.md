@@ -40,6 +40,7 @@ $ jj
 |<kbd>CTRL-Z</kbd>                                        |Toggle selection                    |
 |<kbd>CTRL-R</kbd>                                        |Toggle fuzzy option                 |
 |<kbd>CTRL-F</kbd>                                        |Toggle dirOnly option               |
+|<kbd>CTRL-V</kbd>                                        |Toggle mruHist option               |
 |<kbd>Enter</kbd>                                         |Decide : `open2edit` / `open2cd`    |
 |<kbd>CTRL-D</kbd>,<kbd>CTRL-C</kbd>,<kbd>ESC</kbd>       |Cancel                              |
 
@@ -53,6 +54,8 @@ $ jj
 - `Option` if ran from `alias` would Not work, but mostly cur pwd should be just fine.
 - `fuzzy` filter can be switched when in `jj` by `ctrl-r`, but warn: fuzzy maybe slow.
 - `dirOnly` btw: if to display/show dir only can be switched when in `jj` by `ctrl-f`.
+- `mruHist` btw: if to display/show mru hist can be switched when in `jj` by `ctrl-v`.
+- `mruHist` btw: hist of mru /from newer (bottom) to older/ - may had dup items in it.
 
 ## License
 
