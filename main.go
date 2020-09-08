@@ -60,7 +60,7 @@ func fuzzyFilterFlag() string {
 	if fuzzy {
 		return "Y"
 	} else {
-		return "N"
+		return "n"
 	}
 }
 
@@ -68,7 +68,7 @@ func dirOnlyFilterFlag() string {
 	if dirOnly {
 		return "Y"
 	} else {
-		return "N"
+		return "n"
 	}
 }
 
@@ -76,7 +76,7 @@ func mruHistFlag() string {
 	if mruHist {
 		return "Y"
 	} else {
-		return "N"
+		return "n"
 	}
 }
 
