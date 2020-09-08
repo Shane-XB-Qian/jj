@@ -80,18 +80,18 @@ func mruHistFlag() string {
 	}
 }
 
-func filesIfMru() []string {
-	// mutex.Lock()
-	// defer mutex.Unlock()
-	if !mruHist {
-		return files
-	}
+func getHomeDir() string {
 	userHome, err := os.UserHomeDir()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
+		// shane: better return nil (vs exit) instead ?
 	}
-	f, err := os.Open(userHome + "/.jj_mru_fs")
+	return userHome
+}
+
+func readFs(path string) []string {
+	f, err := os.Open(path)
 	if err != nil {
 		// fmt.Fprintln(os.Stderr, err)
 		// os.Exit(1)
@@ -111,9 +111,22 @@ func filesIfMru() []string {
 		return nil
 		// shane: somehow failed - return nil whatever ?
 	}
+	return tmp
+}
+
+func filesIfMru() []string {
+	// mutex.Lock()
+	// defer mutex.Unlock()
+	if !mruHist {
+		return files
+	}
+	tmp := readFs(getHomeDir() + "/.jj_mru_fs")
+	tmp_len := 0
+	if tmp != nil {
+		tmp_len = len(tmp)
+	}
 	// shane: to make last mru item showed at the list bottom.
 	tmp2 := []string{}
-	tmp_len := len(tmp)
 	if tmp_len > 0 {
 		for i := tmp_len - 1; i >= 0; i-- {
 			// shane: to make mru list showed as rel path of cwd ?
@@ -748,23 +761,47 @@ loop:
 
 	}
 
-	userHome, err := os.UserHomeDir()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+	tmpStrList := readFs(getHomeDir() + "/.jj_mru_fs")
+	tmpStrList_len := 0
+	if tmpStrList != nil {
+		tmpStrList_len = len(tmpStrList)
 	}
-	f, err := os.OpenFile(userHome+"/.jj_mru_fs", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0600)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+	// shane: size limited to 666, looks good/enough ?
+	if tmpStrList_len > 666 {
+		tmpStrList = tmpStrList[(tmpStrList_len - 666):tmpStrList_len]
 	}
+
+	// if tmpStrList_len > 0 {
+	// if tmpStrList != nil {
 	for _, fa := range fArg {
 		fa_abs, err := filepath.Abs(fa)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-		_, err = f.WriteString(fa_abs + "\n")
+		tmp_n := []int{}
+		for i_n, i_f := range tmpStrList {
+			if strings.TrimSpace(i_f) == strings.TrimSpace(fa_abs) {
+				tmp_n = append(tmp_n, i_n)
+			}
+		}
+		if len(tmp_n) > 0 {
+			for i := len(tmp_n) - 1; i >= 0; i-- {
+				// shane: remove the dups starting from tail.
+				tmpStrList = append(tmpStrList[:tmp_n[i]], tmpStrList[(tmp_n[i]+1):]...)
+			}
+		}
+		tmpStrList = append(tmpStrList, fa_abs)
+	}
+	// }
+
+	f, err := os.OpenFile(getHomeDir()+"/.jj_mru_fs", os.O_RDWR|os.O_CREATE|os.O_TRUNC|os.O_APPEND, 0600)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	for _, tmp_f_s := range tmpStrList {
+		_, err = f.WriteString(tmp_f_s + "\n")
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
@@ -790,7 +827,8 @@ loop:
 			os.Exit(1)
 		}
 	} else {
-		f, err := os.Create(userHome + "/.jj_tmp_fs")
+		// f, err := os.Create(getHomeDir() + "/.jj_tmp_fs")
+		f, err := os.OpenFile(getHomeDir()+"/.jj_tmp_fs", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
