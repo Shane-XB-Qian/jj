@@ -59,25 +59,22 @@ var (
 func fuzzyFilterFlag() string {
 	if fuzzy {
 		return "Y"
-	} else {
-		return "n"
 	}
+	return "n"
 }
 
 func dirOnlyFilterFlag() string {
 	if dirOnly {
 		return "Y"
-	} else {
-		return "n"
 	}
+	return "n"
 }
 
 func mruHistFlag() string {
 	if mruHist {
 		return "Y"
-	} else {
-		return "n"
 	}
+	return "n"
 }
 
 func getHomeDir() string {
@@ -121,14 +118,14 @@ func filesIfMru() []string {
 		return files
 	}
 	tmp := readFs(getHomeDir() + "/.jj_mru_fs")
-	tmp_len := 0
+	tmpLen := 0
 	if tmp != nil {
-		tmp_len = len(tmp)
+		tmpLen = len(tmp)
 	}
 	// shane: to make last mru item showed at the list bottom.
 	tmp2 := []string{}
-	if tmp_len > 0 {
-		for i := tmp_len - 1; i >= 0; i-- {
+	if tmpLen > 0 {
+		for i := tmpLen - 1; i >= 0; i-- {
 			// shane: to make mru list showed as rel path of cwd ?
 			// if rl_p, err := filepath.Rel(cwd, tmp[i]); err == nil {
 			// 	tmp2 = append(tmp2, rl_p)
@@ -762,36 +759,36 @@ loop:
 	}
 
 	tmpStrList := readFs(getHomeDir() + "/.jj_mru_fs")
-	tmpStrList_len := 0
+	tmpstrlistLen := 0
 	if tmpStrList != nil {
-		tmpStrList_len = len(tmpStrList)
+		tmpstrlistLen = len(tmpStrList)
 	}
 	// shane: size limited to 666, looks good/enough ?
-	if tmpStrList_len > 666 {
-		tmpStrList = tmpStrList[(tmpStrList_len - 666):tmpStrList_len]
+	if tmpstrlistLen > 666 {
+		tmpStrList = tmpStrList[(tmpstrlistLen - 666):tmpstrlistLen]
 	}
 
-	// if tmpStrList_len > 0 {
+	// if tmpstrlistLen > 0 {
 	// if tmpStrList != nil {
 	for _, fa := range fArg {
-		fa_abs, err := filepath.Abs(fa)
+		faAbs, err := filepath.Abs(fa)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-		tmp_n := []int{}
-		for i_n, i_f := range tmpStrList {
-			if strings.TrimSpace(i_f) == strings.TrimSpace(fa_abs) {
-				tmp_n = append(tmp_n, i_n)
+		tmpN := []int{}
+		for iN, iF := range tmpStrList {
+			if strings.TrimSpace(iF) == strings.TrimSpace(faAbs) {
+				tmpN = append(tmpN, iN)
 			}
 		}
-		if len(tmp_n) > 0 {
-			for i := len(tmp_n) - 1; i >= 0; i-- {
+		if len(tmpN) > 0 {
+			for i := len(tmpN) - 1; i >= 0; i-- {
 				// shane: remove the dups starting from tail.
-				tmpStrList = append(tmpStrList[:tmp_n[i]], tmpStrList[(tmp_n[i]+1):]...)
+				tmpStrList = append(tmpStrList[:tmpN[i]], tmpStrList[(tmpN[i]+1):]...)
 			}
 		}
-		tmpStrList = append(tmpStrList, fa_abs)
+		tmpStrList = append(tmpStrList, faAbs)
 	}
 	// }
 
@@ -800,8 +797,8 @@ loop:
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	for _, tmp_f_s := range tmpStrList {
-		_, err = f.WriteString(tmp_f_s + "\n")
+	for _, tmpFS := range tmpStrList {
+		_, err = f.WriteString(tmpFS + "\n")
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
