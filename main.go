@@ -24,7 +24,7 @@ import (
 
 const name = "jj"
 
-const version = "0.0.1"
+const version = "0.0.2"
 
 var revision = "HEAD"
 
@@ -172,7 +172,8 @@ func env(key, def string) string {
 }
 
 func tprint(x, y int, fg, bg termbox.Attribute, msg string) {
-	for _, c := range []rune(msg) {
+	// for _, c := range []rune(msg) {
+	for _, c := range msg {
 		termbox.SetCell(x, y, c, fg, bg)
 		x += runewidth.RuneWidth(c)
 	}
@@ -387,34 +388,34 @@ func drawLines() {
 	termbox.Flush()
 }
 
-var actionKeys = []termbox.Key{
-	termbox.KeyCtrlA,
-	termbox.KeyCtrlB,
-	termbox.KeyCtrlC,
-	termbox.KeyCtrlD,
-	termbox.KeyCtrlE,
-	termbox.KeyCtrlF,
-	termbox.KeyCtrlG,
-	termbox.KeyCtrlH,
-	termbox.KeyCtrlI,
-	termbox.KeyCtrlJ,
-	termbox.KeyCtrlK,
-	termbox.KeyCtrlL,
-	termbox.KeyCtrlM,
-	termbox.KeyCtrlN,
-	termbox.KeyCtrlO,
-	termbox.KeyCtrlP,
-	termbox.KeyCtrlQ,
-	termbox.KeyCtrlR,
-	termbox.KeyCtrlS,
-	termbox.KeyCtrlT,
-	termbox.KeyCtrlU,
-	termbox.KeyCtrlV,
-	termbox.KeyCtrlW,
-	termbox.KeyCtrlX,
-	termbox.KeyCtrlY,
-	termbox.KeyCtrlZ,
-}
+// var actionKeys = []termbox.Key{
+// 	termbox.KeyCtrlA,
+// 	termbox.KeyCtrlB,
+// 	termbox.KeyCtrlC,
+// 	termbox.KeyCtrlD,
+// 	termbox.KeyCtrlE,
+// 	termbox.KeyCtrlF,
+// 	termbox.KeyCtrlG,
+// 	termbox.KeyCtrlH,
+// 	termbox.KeyCtrlI,
+// 	termbox.KeyCtrlJ,
+// 	termbox.KeyCtrlK,
+// 	termbox.KeyCtrlL,
+// 	termbox.KeyCtrlM,
+// 	termbox.KeyCtrlN,
+// 	termbox.KeyCtrlO,
+// 	termbox.KeyCtrlP,
+// 	termbox.KeyCtrlQ,
+// 	termbox.KeyCtrlR,
+// 	termbox.KeyCtrlS,
+// 	termbox.KeyCtrlT,
+// 	termbox.KeyCtrlU,
+// 	termbox.KeyCtrlV,
+// 	termbox.KeyCtrlW,
+// 	termbox.KeyCtrlX,
+// 	termbox.KeyCtrlY,
+// 	termbox.KeyCtrlZ,
+// }
 
 func listFiles(ctx context.Context, wg *sync.WaitGroup, cwd string) {
 	defer wg.Done()
@@ -538,7 +539,7 @@ func main() {
 		}
 		st, err := os.Stat(cwd)
 		if err == nil && !st.IsDir() {
-			err = fmt.Errorf("Directory not found: %s", cwd)
+			err = fmt.Errorf("directory not found: %s", cwd)
 		}
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -650,7 +651,7 @@ loop:
 				update = true
 			case termbox.KeyCtrlW:
 				part := string(input[0:cursorX])
-				rest := input[cursorX:len(input)]
+				rest := input[cursorX:]
 				pos := regexp.MustCompile(`\s+`).FindStringIndex(part)
 				if len(pos) > 0 && pos[len(pos)-1] > 0 {
 					input = []rune(part[0 : pos[len(pos)-1]-1])
@@ -677,13 +678,13 @@ loop:
 				update = true
 			case termbox.KeyBackspace, termbox.KeyBackspace2:
 				if cursorX > 0 {
-					input = append(input[0:cursorX-1], input[cursorX:len(input)]...)
+					input = append(input[0:cursorX-1], input[cursorX:]...)
 					cursorX--
 					update = true
 				}
 			case termbox.KeyDelete:
 				if cursorX < len([]rune(input)) {
-					input = append(input[0:cursorX], input[cursorX+1:len(input)]...)
+					input = append(input[0:cursorX], input[cursorX+1:]...)
 					update = true
 				}
 			case termbox.KeyCtrlR:
@@ -703,7 +704,7 @@ loop:
 					out := []rune{}
 					out = append(out, input[0:cursorX]...)
 					out = append(out, ev.Ch)
-					input = append(out, input[cursorX:len(input)]...)
+					input = append(out, input[cursorX:]...)
 					cursorX++
 					update = true
 				}
@@ -751,11 +752,11 @@ loop:
 			// XXX: /shane/ should use 'cwd' instead of 'root' here ?
 		}
 	} else {
-		for _, f := range selected {
-			// fmt.Println(f)
-			fArg = append(fArg, f)
-		}
-
+		// for _, f := range selected {
+		// 	// fmt.Println(f)
+		// 	fArg = append(fArg, f)
+		// }
+		fArg = append(fArg, selected...)
 	}
 
 	tmpStrList := readFs(getHomeDir() + "/.jj_mru_fs")
