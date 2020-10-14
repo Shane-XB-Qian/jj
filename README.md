@@ -1,6 +1,6 @@
 # jj
 
-![screenshot](https://github.com/Shane-XB-Qian/jj/screenshot.png)
+![screenshot](https://github.com/Shane-XB-Qian/jj/blob/master/screenshot.png)
 
 ## Feature
 
@@ -57,7 +57,7 @@ $ jj
 |-f            |Fuzzy match (warn: maybe slow)   |
 |-d [path]     |Specify root directory           |
 
-- `Option` if ran from `alias` would Not work, but mostly cur pwd should be just fine/good enough.
+- `Option` if ran from `alias` would Not work, but mostly cur pwd should be just fine.
 
 ## License
 
