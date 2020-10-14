@@ -1,14 +1,16 @@
 # jj
 
+![screenshot](https://github.com/Shane-XB-Qian/jj/screenshot.png)
+
 ## Feature
 
 * similar & forked from [gof](https://github.com/mattn/gof.git) - thanks `mattn`.
-* but simplify: just for independent `open2edit` or `open2cd`.
+* but simplified just for independent `open2edit` or `open2cd` and extended a bit.
 * or at least `jj` should be a more quick / cool name .. :)
 
 ## Installation
 
-- `go get github.com/Shane-XB-Qian/jj` from this repo.
+- `go get github.com/Shane-XB-Qian/jj` from this repo (or just download the bin `jj` from this repo).
 - pls think to write `alias jj='jj || if [ $? -eq 6 ]; then $(cat "$HOME/.jj_tmp_fs"); fi'` into your `.bashrc`.
 
 ## Usage
@@ -19,6 +21,10 @@ $ jj
 
 * Run `jj` and type `ctrl-o`, then start to edit `open2edit` with `vim`, whatever was a file or dir.
 * Run `jj` and type `enter`, then start to edit `open2edit` with `vim` if was a file, Or quit but `cd` to that dir `open2cd` if was a dir.
+
+- `fuzzy` if to 'fuzzy' filter -can be switched -when in `jj` -by `ctrl-r`.
+- `dirOnly` if to display/show dir only can be switched when in `jj` by `ctrl-f`.
+- `mruHist` if to display/show mru hist can be switched when in `jj` by `ctrl-v`.
 
 ## Keyboard shortcuts
 
@@ -51,10 +57,7 @@ $ jj
 |-f            |Fuzzy match (warn: maybe slow)   |
 |-d [path]     |Specify root directory           |
 
-- `Option` if ran from `alias` would Not work, but mostly cur pwd should be just fine.
-- `fuzzy` filter can be switched when in `jj` by `ctrl-r`, but warn: fuzzy maybe slow.
-- `dirOnly` btw: if to display/show dir only can be switched when in `jj` by `ctrl-f`.
-- `mruHist` btw: if to display/show mru hist can be switched when in `jj` by `ctrl-v`.
+- `Option` if ran from `alias` would Not work, but mostly cur pwd should be just fine/good enough.
 
 ## License
 
@@ -65,7 +68,7 @@ MIT
 - Yasuhiro Matsumoto (mattn) made `gof`.
 - Shane.XB.Qian is simplifying `gof` to `jj`.
 
-## NOTE
+## Note
 
 - mostly just a play to myself: only tested linux/bash and edit default with vim.
 - to simple cases should be just fine - quickly to jump/edit like some shell do..
