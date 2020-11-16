@@ -56,6 +56,8 @@ var (
 	mruHist          bool
 )
 
+const mruMax = 666
+
 func fuzzyFilterFlag() string {
 	if fuzzy {
 		return "Y"
@@ -381,7 +383,7 @@ func drawLines() {
 		tprint(0, height-2, termbox.ColorGreen, termbox.ColorDefault, string([]rune("-\\|/")[scanning%4]))
 		scanning++
 	}
-	tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d (%d)z [%s]r [%s]f [%s]v", len(current), len(files), len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag())
+	tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d/%d (%d)z [%s]r [%s]f [%s]v", len(current), mruMax, len(files), len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag())
 	tprint(0, height-1, termbox.ColorBlue|termbox.AttrBold, termbox.ColorDefault, "> ")
 	tprint(2, height-1, termbox.ColorDefault|termbox.AttrBold, termbox.ColorDefault, string(input))
 	termbox.SetCursor(2+runewidth.StringWidth(string(input[0:cursorX])), height-1)
@@ -752,7 +754,8 @@ loop:
 	}
 
 	fArg := []string{}
-	if root != "" {
+	// mruHist stored Abs path.
+	if root != "" && !mruHist {
 		for _, f := range selected {
 			// fmt.Println(filepath.Join(root, f))
 			fArg = append(fArg, filepath.Join(root, f))
@@ -771,9 +774,8 @@ loop:
 	if tmpStrList != nil {
 		tmpstrlistLen = len(tmpStrList)
 	}
-	// shane: size limited to 666, looks good/enough ?
-	if tmpstrlistLen > 666 {
-		tmpStrList = tmpStrList[(tmpstrlistLen - 666):tmpstrlistLen]
+	if tmpstrlistLen > mruMax {
+		tmpStrList = tmpStrList[(tmpstrlistLen - mruMax):tmpstrlistLen]
 	}
 
 	// if tmpstrlistLen > 0 {
