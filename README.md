@@ -22,7 +22,7 @@ $ jj
 * Run `jj` and type `ctrl-o`, then start to edit `open2edit` with `vim`, whatever was a file or dir.
 * Run `jj` and type `enter`, then start to edit `open2edit` with `vim` if was a file, Or quit but `cd` to that dir `open2cd` if was a dir.
 
-- `fuzzy` if to 'fuzzy' filter -can be switched -when in `jj` -by `ctrl-r`.
+- `fuzzy`   if to 'fuzzy' filter        can be switched when in `jj` by `ctrl-r`.
 - `dirOnly` if to display/show dir only can be switched when in `jj` by `ctrl-f`.
 - `mruHist` if to display/show mru hist can be switched when in `jj` by `ctrl-v`.
 
@@ -55,6 +55,8 @@ $ jj
 |Option        |Description                      |
 |--------------|---------------------------------|
 |-f            |Fuzzy match (warn: maybe slow)   |
+|-w            |Init with dir only on            |
+|-m            |Init with mru hist on            |
 |-d [path]     |Specify root directory           |
 
 - `Option` if ran from `alias` would Not work, but mostly cur pwd should be just fine.

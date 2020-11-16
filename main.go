@@ -497,6 +497,8 @@ func main() {
 	var showVersion bool
 
 	flag.BoolVar(&fuzzy, "f", false, "Fuzzy match")
+	flag.BoolVar(&dirOnly, "w", false, "Init with dir only on")
+	flag.BoolVar(&mruHist, "m", false, "Init with mru hist on")
 	flag.StringVar(&root, "d", "", "Root directory")
 	flag.StringVar(&ignore, "i", env(`JJ_IGNORE_PATTERN`, `^(\.git|\.hg|\.svn|_darcs|\.bzr)$`), "Ignore pattern")
 	flag.BoolVar(&showVersion, "v", false, "Print the version")
@@ -590,6 +592,11 @@ func main() {
 	}
 	termbox.SetInputMode(termbox.InputEsc)
 
+	if mruHist {
+		mutex.Lock()
+		dirty = true
+		mutex.Unlock()
+	}
 	redrawFunc()
 
 loop:
