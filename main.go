@@ -1,3 +1,10 @@
+// ------------------------------------------------------------------------
+// author      : Shane.Qian#foxmail.com
+// createdat   : Tuesday, November 17, 2020 AM02:30:26 CST @ China
+// ------------------------------------------------------------------------
+// description : quick to jump -and- quick to edit !
+// ------------------------------------------------------------------------
+
 package main
 
 import (
@@ -24,7 +31,7 @@ import (
 
 const name = "jj"
 
-const version = "0.0.2"
+const version = "0.0.3"
 
 var revision = "HEAD"
 
@@ -497,6 +504,7 @@ func main() {
 	var root string
 	var ignore string
 	var showVersion bool
+	var showHelp bool
 
 	flag.BoolVar(&fuzzy, "f", false, "Fuzzy match")
 	flag.BoolVar(&dirOnly, "w", false, "Init with dir only on")
@@ -504,7 +512,17 @@ func main() {
 	flag.StringVar(&root, "d", "", "Root directory")
 	flag.StringVar(&ignore, "i", env(`JJ_IGNORE_PATTERN`, `^(\.git|\.hg|\.svn|_darcs|\.bzr)$`), "Ignore pattern")
 	flag.BoolVar(&showVersion, "v", false, "Print the version")
+	flag.BoolVar(&showHelp, "h", false, "Print usage")
 	flag.Parse()
+
+	if showHelp {
+		fmt.Println("quick to jump -and- quick to edit !")
+		flag.Usage()
+		fmt.Printf("// %s %s (rev:%s)\n", name, version, revision)
+		fmt.Printf("// shane.qian#foxmail.com - china/%v\n", time.Now().Local().Year())
+		fmt.Println("// enjoy your life and have fun! buddy")
+		return
+	}
 
 	if showVersion {
 		fmt.Printf("%s %s (rev: %s/%s)\n", name, version, revision, runtime.Version())
