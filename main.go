@@ -660,12 +660,22 @@ loop:
 					if offset < cursorY-(height-3) {
 						offset = cursorY - (height - 3)
 					}
+				} else if cursorY == len(current)-1 {
+					cursorY = 0
+					if cursorY < offset {
+						offset = cursorY
+					}
 				}
 			case termbox.KeyArrowDown, termbox.KeyCtrlJ, termbox.KeyCtrlN:
 				if cursorY > 0 {
 					cursorY--
 					if cursorY < offset {
 						offset = cursorY
+					}
+				} else if cursorY == 0 {
+					cursorY = len(current) - 1
+					if offset < cursorY-(height-3) {
+						offset = cursorY - (height - 3)
 					}
 				}
 			case termbox.KeyCtrlI:
