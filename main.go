@@ -63,7 +63,11 @@ var (
 	mruHist          bool
 )
 
-const mruMax = 666
+const (
+	mruMax   = 666
+	mruStore = ".jj_mru_fs"
+	mruTmpFs = ".jj_tmp_fs"
+)
 
 func fuzzyFilterFlag() string {
 	if fuzzy {
@@ -126,7 +130,7 @@ func filesIfMru() []string {
 	if !mruHist {
 		return files
 	}
-	tmp := readFs(getHomeDir() + "/.jj_mru_fs")
+	tmp := readFs(getHomeDir() + "/" + mruStore)
 	tmpLen := 0
 	if tmp != nil {
 		tmpLen = len(tmp)
@@ -390,7 +394,11 @@ func drawLines() {
 		tprint(0, height-2, termbox.ColorGreen, termbox.ColorDefault, string([]rune("-\\|/")[scanning%4]))
 		scanning++
 	}
-	tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d/%d (%d)z [%s]r [%s]f [%s]v", len(current), mruMax, len(files), len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag())
+	if mruHist {
+		tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d|%d (%d)z [%s]r [%s]f [%s]v", len(current), mruMax, len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag())
+	} else {
+		tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d (%d)z [%s]r [%s]f [%s]v", len(current), len(files), len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag())
+	}
 	tprint(0, height-1, termbox.ColorBlue|termbox.AttrBold, termbox.ColorDefault, "> ")
 	tprint(2, height-1, termbox.ColorDefault|termbox.AttrBold, termbox.ColorDefault, string(input))
 	termbox.SetCursor(2+runewidth.StringWidth(string(input[0:cursorX])), height-1)
@@ -519,8 +527,9 @@ func main() {
 		fmt.Println("quick to jump -and- quick to edit !")
 		flag.Usage()
 		fmt.Printf("// %s %s (rev:%s)\n", name, version, revision)
+		fmt.Println("--------------------------------------")
 		fmt.Printf("// shane.qian#foxmail.com - china/%v\n", time.Now().Local().Year())
-		fmt.Println("// enjoy your life and have fun! buddy")
+		fmt.Println("// enjoy your life & have fun! buddy..")
 		return
 	}
 
@@ -785,29 +794,19 @@ loop:
 	// mruHist stored Abs path.
 	if root != "" && !mruHist {
 		for _, f := range selected {
-			// fmt.Println(filepath.Join(root, f))
 			fArg = append(fArg, filepath.Join(root, f))
-			// XXX: /shane/ should use 'cwd' instead of 'root' here ?
+			// XXX: should use 'cwd' instead of 'root' ?
 		}
 	} else {
-		// for _, f := range selected {
-		// 	// fmt.Println(f)
-		// 	fArg = append(fArg, f)
-		// }
 		fArg = append(fArg, selected...)
 	}
 
-	tmpStrList := readFs(getHomeDir() + "/.jj_mru_fs")
-	tmpstrlistLen := 0
-	if tmpStrList != nil {
-		tmpstrlistLen = len(tmpStrList)
-	}
-	if tmpstrlistLen > mruMax {
-		tmpStrList = tmpStrList[(tmpstrlistLen - mruMax):tmpstrlistLen]
+	mruListTmp := readFs(getHomeDir() + "/" + mruStore)
+	mruListTmpLen := len(mruListTmp)
+	if mruListTmpLen > mruMax {
+		mruListTmp = mruListTmp[(mruListTmpLen - mruMax):mruListTmpLen]
 	}
 
-	// if tmpstrlistLen > 0 {
-	// if tmpStrList != nil {
 	for _, fa := range fArg {
 		faAbs, err := filepath.Abs(fa)
 		if err != nil {
@@ -815,7 +814,7 @@ loop:
 			os.Exit(1)
 		}
 		tmpN := []int{}
-		for iN, iF := range tmpStrList {
+		for iN, iF := range mruListTmp {
 			if strings.TrimSpace(iF) == strings.TrimSpace(faAbs) {
 				tmpN = append(tmpN, iN)
 			}
@@ -823,19 +822,18 @@ loop:
 		if len(tmpN) > 0 {
 			for i := len(tmpN) - 1; i >= 0; i-- {
 				// shane: remove the dups starting from tail.
-				tmpStrList = append(tmpStrList[:tmpN[i]], tmpStrList[(tmpN[i]+1):]...)
+				mruListTmp = append(mruListTmp[:tmpN[i]], mruListTmp[(tmpN[i]+1):]...)
 			}
 		}
-		tmpStrList = append(tmpStrList, faAbs)
+		mruListTmp = append(mruListTmp, faAbs)
 	}
-	// }
 
-	f, err := os.OpenFile(getHomeDir()+"/.jj_mru_fs", os.O_RDWR|os.O_CREATE|os.O_TRUNC|os.O_APPEND, 0600)
+	f, err := os.OpenFile(getHomeDir()+"/"+mruStore, os.O_RDWR|os.O_CREATE|os.O_TRUNC|os.O_APPEND, 0600)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	for _, tmpFS := range tmpStrList {
+	for _, tmpFS := range mruListTmp {
 		_, err = f.WriteString(tmpFS + "\n")
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -862,8 +860,8 @@ loop:
 			os.Exit(1)
 		}
 	} else {
-		// f, err := os.Create(getHomeDir() + "/.jj_tmp_fs")
-		f, err := os.OpenFile(getHomeDir()+"/.jj_tmp_fs", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+		// f, err := os.Create(getHomeDir()+"/"+mruTmpFs)
+		f, err := os.OpenFile(getHomeDir()+"/"+mruTmpFs, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
