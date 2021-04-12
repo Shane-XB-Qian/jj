@@ -708,20 +708,22 @@ loop:
 				cursorX = len(input)
 				update = true
 			case termbox.KeyCtrlZ:
-				found := -1
-				name := current[cursorY].name
-				for i, s := range selected {
-					if name == s {
-						found = i
-						break
+				if cursorY >= 0 && cursorY < len(current) {
+					found := -1
+					name := current[cursorY].name
+					for i, s := range selected {
+						if name == s {
+							found = i
+							break
+						}
 					}
+					if found == -1 {
+						selected = append(selected, current[cursorY].name)
+					} else {
+						selected = append(selected[:found], selected[found+1:]...)
+					}
+					update = true
 				}
-				if found == -1 {
-					selected = append(selected, current[cursorY].name)
-				} else {
-					selected = append(selected[:found], selected[found+1:]...)
-				}
-				update = true
 			case termbox.KeyBackspace, termbox.KeyBackspace2:
 				if cursorX > 0 {
 					input = append(input[0:cursorX-1], input[cursorX:]...)
