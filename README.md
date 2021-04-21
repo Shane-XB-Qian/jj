@@ -26,29 +26,7 @@ $ jj
 - `dirOnly` if to display/show dir only -can be switched -when in `jj` -by `ctrl-f`.
 - `mruHist` if to display/show mru hist -can be switched -when in `jj` -by `ctrl-v`.
 
-## Keyboard shortcuts
-
-|Key                                                      |Description                         |
-|---------------------------------------------------------|------------------------------------|
-|<kbd>CTRL-K</kbd>,<kbd>CTRL-P</kbd>,<kbd>ARROW-UP</kbd>  |Move-up line                        |
-|<kbd>CTRL-J</kbd>,<kbd>CTRL-N</kbd>,<kbd>ARROW-DOWN</kbd>|Move-down line                      |
-|<kbd>CTRL-A</kbd>,<kbd>HOME</kbd>                        |Go to head of prompt                |
-|<kbd>CTRL-E</kbd>,<kbd>END</kbd>                         |Go to trail of prompt               |
-|<kbd>ARROW-LEFT</kbd>                                    |Move-left cursor                    |
-|<kbd>ARROW-RIGHT</kbd>                                   |Move-right cursor                   |
-|<kbd>CTRL-O</kbd>                                        |Edit the selected file/dir          |
-|<kbd>CTRL-I</kbd>                                        |Toggle view header/trailing of lines|
-|<kbd>CTRL-L</kbd>                                        |Redraw                              |
-|<kbd>CTRL-U</kbd>                                        |Clear prompt                        |
-|<kbd>CTRL-W</kbd>                                        |Remove backward word                |
-|<kbd>BS</kbd>                                            |Remove backward character           |
-|<kbd>DEL</kbd>                                           |Delete character on the cursor      |
-|<kbd>CTRL-Z</kbd>                                        |Toggle selection                    |
-|<kbd>CTRL-R</kbd>                                        |Toggle fuzzy option                 |
-|<kbd>CTRL-F</kbd>                                        |Toggle dirOnly option               |
-|<kbd>CTRL-V</kbd>                                        |Toggle mruHist option               |
-|<kbd>Enter</kbd>                                         |Decide : `open2edit` / `open2cd`    |
-|<kbd>CTRL-D</kbd>,<kbd>CTRL-C</kbd>,<kbd>ESC</kbd>       |Cancel                              |
+* Use `tab` to complete dir.
 
 ## Options
 
@@ -60,6 +38,33 @@ $ jj
 |-d [path]     |Specify root directory           |
 
 - chk `-h` for detail.
+
+## Keyboard shortcuts
+
+|Key                                                      |Description                         |
+|---------------------------------------------------------|------------------------------------|
+|<kbd>CTRL-K</kbd>,<kbd>CTRL-P</kbd>,<kbd>ARROW-UP</kbd>  |Move-up   line -or wrap to bottom   |
+|<kbd>CTRL-J</kbd>,<kbd>CTRL-N</kbd>,<kbd>ARROW-DOWN</kbd>|Move-down line -or wrap to top      |
+|<kbd>CTRL-G</kbd>                                        |Move-down line -to bottom           |
+|<kbd>CTRL-A</kbd>,<kbd>HOME</kbd>                        |Go to head of prompt                |
+|<kbd>CTRL-E</kbd>,<kbd>END</kbd>                         |Go to trail of prompt               |
+|<kbd>ARROW-LEFT</kbd>                                    |Move-left cursor                    |
+|<kbd>ARROW-RIGHT</kbd>                                   |Move-right cursor                   |
+|<kbd>CTRL-O</kbd>                                        |Edit the selected file/dir          |
+|<kbd>CTRL-I</kbd>,<kbd>TAB</kbd>                         |Complete dir                        |
+|<kbd>CTRL-Y</kbd>                                        |Echo cur item to input              |
+|<kbd>CTRL-T</kbd>                                        |Toggle view header/trailing of lines|
+|<kbd>CTRL-L</kbd>                                        |Redraw                              |
+|<kbd>CTRL-U</kbd>                                        |Clear prompt                        |
+|<kbd>CTRL-W</kbd>                                        |Remove backward word                |
+|<kbd>CTRL-H</kbd>,<kbd>BS</kbd>                          |Remove backward character           |
+|<kbd>DEL</kbd>                                           |Delete character on the cursor      |
+|<kbd>CTRL-Z</kbd>                                        |Toggle selection                    |
+|<kbd>CTRL-R</kbd>                                        |Toggle fuzzy option                 |
+|<kbd>CTRL-F</kbd>                                        |Toggle dirOnly option               |
+|<kbd>CTRL-V</kbd>                                        |Toggle mruHist option               |
+|<kbd>Enter</kbd>                                         |Decide : `open2edit` / `open2cd`    |
+|<kbd>CTRL-D</kbd>,<kbd>CTRL-C</kbd>,<kbd>ESC</kbd>       |Cancel                              |
 
 ## License
 

@@ -457,6 +457,12 @@ func listFiles(ctx context.Context, wg *sync.WaitGroup, cwd string) {
 			return nil
 		}
 		path = filepath.ToSlash(path)
+		// shane: let dir end with Separator -good for identification.
+		if info.IsDir() {
+			if path[len(path)-1] != filepath.Separator {
+				path = path + string(filepath.Separator)
+			}
+		}
 		mutex.Lock()
 		files = append(files, path)
 		n++
@@ -687,8 +693,39 @@ loop:
 						offset = cursorY - (height - 3)
 					}
 				}
-			case termbox.KeyCtrlI:
+			case termbox.KeyCtrlG:
+				cursorY = 0
+				if cursorY < offset {
+					offset = cursorY
+				}
+			case termbox.KeyCtrlT:
 				heading = !heading
+			case termbox.KeyTab:
+				if cursorY >= 0 && cursorY < len(current) {
+					dirpath, _ := filepath.Split(current[cursorY].name)
+					if dirpath != "" {
+						input = []rune(dirpath)
+					} else {
+						input = []rune(current[cursorY].name)
+					}
+					cursorX = len(input)
+					// shane: refresh 'current' & reflect 'cursorY'
+					filter(fuzzy)
+					for i, s := range current {
+						if s.name == string(input) {
+							cursorY = i
+							break
+						}
+					}
+					update = true
+					// shane: 'filter()' would recalculate 'offset'
+				}
+			case termbox.KeyCtrlY:
+				if cursorY >= 0 && cursorY < len(current) {
+					input = []rune(current[cursorY].name)
+					cursorX = len(input)
+					update = true
+				}
 			case termbox.KeyCtrlL:
 				update = true
 			case termbox.KeyCtrlU:
