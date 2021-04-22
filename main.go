@@ -735,7 +735,11 @@ loop:
 			case termbox.KeyCtrlW:
 				part := string(input[0:cursorX])
 				rest := input[cursorX:]
-				pos := regexp.MustCompile(`\s+`).FindStringIndex(part)
+				pos_all := regexp.MustCompile(`\s+|`+string(filepath.Separator)).FindAllStringIndex(part, -1)
+				pos := []int{}
+				if len(pos_all) > 0 {
+					pos = pos_all[len(pos_all)-1]
+				}
 				if len(pos) > 0 && pos[len(pos)-1] > 0 {
 					input = []rune(part[0 : pos[len(pos)-1]-1])
 					input = append(input, rest...)
