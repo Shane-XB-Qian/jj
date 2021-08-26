@@ -733,20 +733,33 @@ loop:
 				input = []rune{}
 				update = true
 			case termbox.KeyCtrlW:
-				part := string(input[0:cursorX])
-				rest := input[cursorX:]
-				pos_all := regexp.MustCompile(`\s+|`+string(filepath.Separator)).FindAllStringIndex(part, -1)
+				input_len_kpt := len(input)
+				// sq: remain tail '/'
+				cursor_tail_moved := false
+				if len(input) != 0 && len(input) == cursorX && input[cursorX-1] == filepath.Separator {
+					cursorX = cursorX - 1
+					cursor_tail_moved = true
+				}
+				head := string(input[0:cursorX])
+				tail := input[cursorX:]
+				// sq: `\s+|`+string(filepath.Separator)
+				// sq: or just string(filepath.Separator)
+				pos_all := regexp.MustCompile(string(filepath.Separator)).FindAllStringIndex(head, -1)
 				pos := []int{}
 				if len(pos_all) > 0 {
 					pos = pos_all[len(pos_all)-1]
 				}
 				if len(pos) > 0 && pos[len(pos)-1] > 0 {
-					input = []rune(part[0 : pos[len(pos)-1]-1])
-					input = append(input, rest...)
+					input = []rune(head[0 : pos[len(pos)-1]-1])
 				} else {
 					input = []rune{}
 				}
-				cursorX = len(input)
+				input = append(input, tail...)
+				cursorX = cursorX - (input_len_kpt - len(input))
+				// sq: recover cursor pos if tail was '/'
+				if cursor_tail_moved {
+					cursorX = cursorX + 1
+				}
 				update = true
 			case termbox.KeyCtrlZ:
 				if cursorY >= 0 && cursorY < len(current) {

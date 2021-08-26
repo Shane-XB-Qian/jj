@@ -56,7 +56,7 @@ $ jj
 |<kbd>CTRL-T</kbd>                                        |Toggle view header/trailing of lines|
 |<kbd>CTRL-L</kbd>                                        |Redraw                              |
 |<kbd>CTRL-U</kbd>                                        |Clear prompt                        |
-|<kbd>CTRL-W</kbd>                                        |Remove backward word -sep by '\s+|/'|
+|<kbd>CTRL-W</kbd>                                        |Remove backward word (sep by '/')   |
 |<kbd>CTRL-H</kbd>,<kbd>BS</kbd>                          |Remove backward character           |
 |<kbd>DEL</kbd>                                           |Delete character on the cursor      |
 |<kbd>CTRL-Z</kbd>                                        |Toggle selection                    |
