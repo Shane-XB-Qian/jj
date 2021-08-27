@@ -31,7 +31,7 @@ import (
 
 const name = "jj"
 
-const version = "0.0.4"
+const version = "0.0.5"
 
 var revision = "HEAD"
 
@@ -44,6 +44,8 @@ type matched struct {
 }
 
 var (
+	cwd              = ""
+	root             = ""
 	input            = []rune{}
 	files            []string
 	selected         = []string{}
@@ -60,6 +62,7 @@ var (
 	ignorere         *regexp.Regexp
 	fuzzy            bool
 	dirOnly          bool
+	curOnly          bool
 	mruHist          bool
 )
 
@@ -78,6 +81,13 @@ func fuzzyFilterFlag() string {
 
 func dirOnlyFilterFlag() string {
 	if dirOnly {
+		return "Y"
+	}
+	return "n"
+}
+
+func curOnlyFilterFlag() string {
+	if curOnly {
 		return "Y"
 	}
 	return "n"
@@ -177,6 +187,33 @@ func filterIfDirOnly(fs []string) []string {
 	return tmp
 }
 
+func filterIfCurOnly(fs []string) []string {
+	// mutex.Lock()
+	// defer mutex.Unlock()
+	if !curOnly {
+		return fs
+	}
+	// fs := files
+	var fl []os.DirEntry
+	var ft string
+	if root != "" {
+		fl, _ = os.ReadDir(cwd)
+		ft = cwd + "/"
+	} else {
+		fl, _ = os.ReadDir(".")
+		ft = ""
+	}
+	tmp := []string{}
+	for _, f := range fl {
+		if f.IsDir() {
+			tmp = append(tmp, ft+f.Name()+"/")
+		} else {
+			tmp = append(tmp, ft+f.Name())
+		}
+	}
+	return tmp
+}
+
 func env(key, def string) string {
 	if v := os.Getenv(key); v != "" {
 		return v
@@ -200,6 +237,7 @@ func tprintf(x, y int, fg, bg termbox.Attribute, format string, args ...interfac
 func filter(fuzzy bool) {
 	mutex.Lock()
 	fs := filesIfMru()
+	fs = filterIfCurOnly(fs)
 	fs = filterIfDirOnly(fs)
 	inp := input
 	sel := selected
@@ -395,9 +433,9 @@ func drawLines() {
 		scanning++
 	}
 	if mruHist {
-		tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d|%d (%d)z [%s]r [%s]f [%s]v", len(current), mruMax, len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag())
+		tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d|%d (%d)z { [%s]r [%s]f } { [%s]v < [%s]\\ }", len(current), mruMax, len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag(), "curOnly:"+curOnlyFilterFlag())
 	} else {
-		tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d (%d)z [%s]r [%s]f [%s]v", len(current), len(files), len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag())
+		tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d (%d)z { [%s]r [%s]f } { [%s]v < [%s]\\ }", len(current), len(files), len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag(), "curOnly:"+curOnlyFilterFlag())
 	}
 	tprint(0, height-1, termbox.ColorBlue|termbox.AttrBold, termbox.ColorDefault, "> ")
 	tprint(2, height-1, termbox.ColorDefault|termbox.AttrBold, termbox.ColorDefault, string(input))
@@ -434,7 +472,7 @@ func drawLines() {
 // 	termbox.KeyCtrlZ,
 // }
 
-func listFiles(ctx context.Context, wg *sync.WaitGroup, cwd string) {
+func listFiles(ctx context.Context, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	n := 0
@@ -515,13 +553,13 @@ func main() {
 	var open2CdOrEdit bool
 
 	// var fuzzy bool
-	var root string
 	var ignore string
 	var showVersion bool
 	var showHelp bool
 
 	flag.BoolVar(&fuzzy, "f", false, "Fuzzy match")
 	flag.BoolVar(&dirOnly, "w", false, "Init with dir only on")
+	flag.BoolVar(&curOnly, "c", false, "Init with cur only on")
 	flag.BoolVar(&mruHist, "m", false, "Init with mru hist on")
 	flag.StringVar(&root, "d", "", "Root directory")
 	flag.StringVar(&ignore, "i", env(`JJ_IGNORE_PATTERN`, `^(\.git|\.hg|\.svn|_darcs|\.bzr)$`), "Ignore pattern")
@@ -556,7 +594,6 @@ func main() {
 	}
 
 	// Make sure current directory.
-	cwd := ""
 	if root == "" {
 		cwd, err = os.Getwd()
 		if err != nil {
@@ -618,7 +655,7 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	// Walk and collect files recursively.
-	go listFiles(ctx, &wg, cwd)
+	go listFiles(ctx, &wg)
 
 	err = termbox.Init()
 	if err != nil {
@@ -794,6 +831,9 @@ loop:
 				update = true
 			case termbox.KeyCtrlF:
 				dirOnly = !dirOnly
+				update = true
+			case termbox.KeyCtrlBackslash:
+				curOnly = !curOnly
 				update = true
 			case termbox.KeyCtrlV:
 				mruHist = !mruHist

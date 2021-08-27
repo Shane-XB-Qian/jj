@@ -25,6 +25,10 @@ $ jj
 - `fuzzy`   if to 'fuzzy' filter        -can be switched -when in `jj` -by `ctrl-r`.
 - `dirOnly` if to display/show dir only -can be switched -when in `jj` -by `ctrl-f`.
 - `mruHist` if to display/show mru hist -can be switched -when in `jj` -by `ctrl-v`.
+- `curOnly` if to display/show cur only -can be switched -when in `jj` -by `ctrl-\`.
+
+* cur only means only show fs under cur path -or 'cwd' (if set 'root dir')
+* cur only is higher priority than mru hist when if both switched to true.
 
 * Use `tab` to complete dir.
 
@@ -34,6 +38,7 @@ $ jj
 |--------------|---------------------------------|
 |-f            |Fuzzy match (warn: maybe slow)   |
 |-w            |Init with dir only on            |
+|-c            |Init with cur only on            |
 |-m            |Init with mru hist on            |
 |-d [path]     |Specify root directory           |
 
@@ -62,6 +67,7 @@ $ jj
 |<kbd>CTRL-Z</kbd>                                        |Toggle selection                    |
 |<kbd>CTRL-R</kbd>                                        |Toggle fuzzy option                 |
 |<kbd>CTRL-F</kbd>                                        |Toggle dirOnly option               |
+|<kbd>CTRL-\\</kbd>                                       |Toggle curOnly option               |
 |<kbd>CTRL-V</kbd>                                        |Toggle mruHist option               |
 |<kbd>Enter</kbd>                                         |Decide : `open2edit` / `open2cd`    |
 |<kbd>CTRL-D</kbd>,<kbd>CTRL-C</kbd>,<kbd>ESC</kbd>       |Cancel                              |
