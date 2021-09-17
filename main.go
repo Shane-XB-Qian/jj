@@ -395,10 +395,13 @@ func drawLines() {
 				}
 			}
 		}
-		swidth := runewidth.StringWidth(name)
-		if swidth+2 > width {
-			rname := []rune(name)
-			name = string(rname[0:width-5]) + "..."
+		//  -- perhaps not redraw after resize..
+		//  -- specially 'height' after though..
+		// shane: should 'rwidth' vs 'swidth' ?!
+		//  -- looks would overflow if 'swidth'.
+		rwidth := len([]rune(name))
+		if rwidth+2 > width {
+			name = string([]rune(name)[0:width-5]) + "..."
 		}
 		for f, c := range []rune(name) {
 			w = runewidth.RuneWidth(c)
