@@ -30,7 +30,8 @@ $ jj
 * cur only means only show fs under cur path -or 'cwd' (if set 'root dir')
 * cur only is higher priority than mru hist when if both switched to true.
 
-* Use `tab` to complete dir.
+* Tips: Use `tab` to complete dir.
+* Note: `mruHist` stored abs path.
 
 ## Options
 

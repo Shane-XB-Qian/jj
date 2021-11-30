@@ -436,9 +436,9 @@ func drawLines() {
 		scanning++
 	}
 	if mruHist {
-		tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d|%d (%d)z { [%s]r [%s]f } { [%s]v < [%s]\\ }", len(current), mruMax, len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag(), "curOnly:"+curOnlyFilterFlag())
+		tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d|%d (%d)z { [%s]r [%s]f } { [%s]v < [%s]\\ }", len(current), mruMax, len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:(abs):"+mruHistFlag(), "curOnly:"+curOnlyFilterFlag())
 	} else {
-		tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d (%d)z { [%s]r [%s]f } { [%s]v < [%s]\\ }", len(current), len(files), len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:"+mruHistFlag(), "curOnly:"+curOnlyFilterFlag())
+		tprintf(2, height-2, termbox.ColorDefault, termbox.ColorDefault, "%d/%d (%d)z { [%s]r [%s]f } { [%s]v < [%s]\\ }", len(current), len(files), len(selected), "fuzzy:"+fuzzyFilterFlag(), "dirOnly:"+dirOnlyFilterFlag(), "mruHist:(abs):"+mruHistFlag(), "curOnly:"+curOnlyFilterFlag())
 	}
 	tprint(0, height-1, termbox.ColorBlue|termbox.AttrBold, termbox.ColorDefault, "> ")
 	tprint(2, height-1, termbox.ColorDefault|termbox.AttrBold, termbox.ColorDefault, string(input))
