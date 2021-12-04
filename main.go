@@ -31,7 +31,7 @@ import (
 
 const name = "jj"
 
-const version = "0.0.5"
+const version = "0.0.6"
 
 var revision = "HEAD"
 
@@ -571,12 +571,13 @@ func main() {
 	flag.Parse()
 
 	if showHelp {
-		fmt.Println("Quick to Jump -and- Quick to Edit!")
+		fmt.Println("-- Quick to Jump & Quick to Edit -")
+		fmt.Println("----------------------------------")
 		flag.Usage()
 		fmt.Println("----------------------------------")
-		fmt.Printf("// %s %s (rev:%s)\n", name, version, revision)
+		fmt.Printf("ver: %s %s (rev:%s)\n", name, version, revision)
 		fmt.Println("----------------------------------")
-		fmt.Println("// shane.qian#foxmail.com - china.")
+		fmt.Println("-- Shane.Qian@foxmail.com @China -")
 		return
 	}
 
