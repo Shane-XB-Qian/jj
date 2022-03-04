@@ -1,8 +1,10 @@
+// go
+
 // ------------------------------------------------------------------------
-// author      : Shane.Qian#foxmail.com
-// createdat   : Tuesday, November 17, 2020 AM02:30:26 CST @ China
+// author      : © Shane.Qian@foxmail.com
+// createdat   : tue 17 nov 2020 02:30:00 am hkt @china
 // ------------------------------------------------------------------------
-// description : quick to jump -and- quick to edit !
+// description : quick to jump -and- quick to edit!
 // ------------------------------------------------------------------------
 
 package main
@@ -571,13 +573,13 @@ func main() {
 	flag.Parse()
 
 	if showHelp {
-		fmt.Println("-- Quick to Jump & Quick to Edit -")
-		fmt.Println("----------------------------------")
+		fmt.Println("- Quick to Jump & Quick to Edit -")
+		fmt.Println("---------------------------------")
 		flag.Usage()
-		fmt.Println("----------------------------------")
+		fmt.Println("---------------------------------")
 		fmt.Printf("ver: %s %s (rev:%s)\n", name, version, revision)
-		fmt.Println("----------------------------------")
-		fmt.Println("-- Shane.Qian@foxmail.com @China -")
+		fmt.Println("---------------------------------")
+		fmt.Println("- Shane.Qian@foxmail.com @China -")
 		return
 	}
 
