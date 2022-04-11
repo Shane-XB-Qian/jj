@@ -536,11 +536,11 @@ func main() {
 		os.Exit(1)
 	}
 	if strings.Index(fi.Mode().String(), "p") == 0 || strings.Index(fo.Mode().String(), "p") == 0 {
-		fmt.Fprintln(os.Stderr, "err: 'jj' is simply going to work only as an independent cmd! - shane.")
+		fmt.Fprintln(os.Stderr, "err: 'jj' is simply going to work only as an Independent cmd! - shane.")
 		os.Exit(1)
 	}
 	if e := env("SHELL", ""); e == "" {
-		fmt.Fprintln(os.Stderr, "err: 'jj' is simply going to work on 'linux', perhaps 'mac', not sure 'windows' .. - shane.")
+		fmt.Fprintln(os.Stderr, "err: 'jj' is simply going to work on 'Linux', perhaps 'Mac', not sure 'Windows'. - shane.")
 		os.Exit(1)
 	} else {
 		b, err := regexp.MatchString("bash", e)
@@ -549,7 +549,7 @@ func main() {
 			os.Exit(1)
 		}
 		if !b {
-			fmt.Fprintln(os.Stderr, "wrn: 'jj' is simply going to work with 'bash', not sure others .. - shane.")
+			fmt.Fprintln(os.Stderr, "wrn: 'jj' is simply going to work with 'Bash', not sure others. - shane.")
 			// os.Exit(1)
 		}
 	}
@@ -776,21 +776,21 @@ loop:
 				input = []rune{}
 				update = true
 			case termbox.KeyCtrlW:
-				input_len_kpt := len(input)
+				inputLenKpt := len(input)
 				// sq: remain tail '/'
-				cursor_tail_moved := false
+				cursorTailMoved := false
 				if len(input) != 0 && len(input) == cursorX && input[cursorX-1] == filepath.Separator {
 					cursorX = cursorX - 1
-					cursor_tail_moved = true
+					cursorTailMoved = true
 				}
 				head := string(input[0:cursorX])
 				tail := input[cursorX:]
 				// sq: `\s+|`+string(filepath.Separator)
 				// sq: or just string(filepath.Separator)
-				pos_all := regexp.MustCompile(string(filepath.Separator)).FindAllStringIndex(head, -1)
+				posAll := regexp.MustCompile(string(filepath.Separator)).FindAllStringIndex(head, -1)
 				pos := []int{}
-				if len(pos_all) > 0 {
-					pos = pos_all[len(pos_all)-1]
+				if len(posAll) > 0 {
+					pos = posAll[len(posAll)-1]
 				}
 				if len(pos) > 0 && pos[len(pos)-1] > 0 {
 					input = []rune(head[0 : pos[len(pos)-1]-1])
@@ -798,9 +798,9 @@ loop:
 					input = []rune{}
 				}
 				input = append(input, tail...)
-				cursorX = cursorX - (input_len_kpt - len(input))
+				cursorX = cursorX - (inputLenKpt - len(input))
 				// sq: recover cursor pos if tail was '/'
-				if cursor_tail_moved {
+				if cursorTailMoved {
 					cursorX = cursorX + 1
 				}
 				update = true
