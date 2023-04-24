@@ -3,6 +3,7 @@ module github.com/Shane-XB-Qian/jj
 go 1.12
 
 require (
+	github.com/lithammer/fuzzysearch v1.1.5
 	github.com/mattn/go-colorable v0.1.7
 	github.com/mattn/go-runewidth v0.0.9
 	github.com/nsf/termbox-go v0.0.0-20200418040025-38ba6e5628f1

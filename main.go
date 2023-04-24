@@ -29,11 +29,13 @@ import (
 	"github.com/mattn/go-runewidth"
 	"github.com/nsf/termbox-go"
 	"github.com/saracen/walker"
+
+	fuzzysearch "github.com/lithammer/fuzzysearch/fuzzy"
 )
 
 const name = "jj"
 
-const version = "0.0.6"
+const version = "0.0.7"
 
 var revision = "HEAD"
 
@@ -265,17 +267,23 @@ func filter(fuzzy bool) {
 			}
 		}
 	} else if fuzzy {
-		pat := "(?i)(?:.*)("
-		for _, r := range []rune(inp) {
-			pat += regexp.QuoteMeta(string(r)) + ".*?"
-		}
-		pat += ")"
-		re := regexp.MustCompile(pat)
-
 		tmp = make([]matched, 0, len(fs))
+		inpl_s := strings.ToLower(string(inp[0]))
+		inpl_e := strings.ToLower(string(inp[len(inp)-1]))
 		for _, f := range fs {
-			ms := re.FindAllStringSubmatchIndex(f, 1)
-			if len(ms) != 1 || len(ms[0]) != 4 {
+			var pos_s int
+			var pos_e int
+			if lf := strings.ToLower(f); len(f) == len(lf) {
+				pos_s = strings.Index(lf, inpl_s)
+				pos_e = strings.LastIndex(lf, inpl_e)
+			} else {
+				pos_s = bytes.Index([]byte(f), []byte(string(inp[0])))
+				pos_e = bytes.LastIndex([]byte(f), []byte(string(inp[len(inp)-1])))
+			}
+			if pos_s == -1 || pos_e == -1 {
+				continue
+			}
+			if !fuzzysearch.MatchNormalizedFold(string(inp), f) {
 				continue
 			}
 			prevSelected := false
@@ -285,10 +293,12 @@ func filter(fuzzy bool) {
 					break
 				}
 			}
+			pos1 := len([]rune(f[:pos_s]))
+			pos2 := len([]rune(f[:pos_e]))
 			tmp = append(tmp, matched{
 				name:     f,
-				pos1:     len([]rune(f[0:ms[0][2]])),
-				pos2:     len([]rune(f[0:ms[0][3]])),
+				pos1:     pos1,
+				pos2:     pos2 + 1,
 				selected: prevSelected,
 				index:    len(tmp),
 			})

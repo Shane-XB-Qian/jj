@@ -37,7 +37,7 @@ $ jj
 
 |Option        |Description                      |
 |--------------|---------------------------------|
-|-f            |Fuzzy match (warn: maybe slow)   |
+|-f            |Fuzzy match                      |
 |-w            |Init with dir only on            |
 |-c            |Init with cur only on            |
 |-m            |Init with mru hist on            |
