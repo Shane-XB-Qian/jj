@@ -45,6 +45,7 @@ type matched struct {
 	pos2     int
 	selected bool
 	index    int
+	pseq     int
 }
 
 var (
@@ -268,15 +269,19 @@ func filter(fuzzy bool) {
 		}
 	} else if fuzzy {
 		tmp = make([]matched, 0, len(fs))
+		inpl := strings.ToLower(string(inp))
 		inpl_s := strings.ToLower(string(inp[0]))
 		inpl_e := strings.ToLower(string(inp[len(inp)-1]))
 		for _, f := range fs {
+			var pos int
 			var pos_s int
 			var pos_e int
 			if lf := strings.ToLower(f); len(f) == len(lf) {
+				pos = strings.Index(lf, inpl)
 				pos_s = strings.Index(lf, inpl_s)
 				pos_e = strings.LastIndex(lf, inpl_e)
 			} else {
+				pos = bytes.Index([]byte(f), []byte(string(inp)))
 				pos_s = bytes.Index([]byte(f), []byte(string(inp[0])))
 				pos_e = bytes.LastIndex([]byte(f), []byte(string(inp[len(inp)-1])))
 			}
@@ -301,6 +306,7 @@ func filter(fuzzy bool) {
 				pos2:     pos2 + 1,
 				selected: prevSelected,
 				index:    len(tmp),
+				pseq:     pos,
 			})
 		}
 	} else {
@@ -336,7 +342,18 @@ func filter(fuzzy bool) {
 	if len(inp) > 0 {
 		sort.Slice(tmp, func(i, j int) bool {
 			li, lj := tmp[i].pos2-tmp[i].pos1, tmp[j].pos2-tmp[j].pos1
-			return li < lj || li == lj && tmp[i].index < tmp[j].index
+			if fuzzy {
+				pi, pj := tmp[i].pseq, tmp[j].pseq
+				if pi == -1 {
+					pi = 999999
+				}
+				if pj == -1 {
+					pj = 999999
+				}
+				return pi < pj || pi == pj && tmp[i].index < tmp[j].index
+			} else {
+				return li < lj || li == lj && tmp[i].index < tmp[j].index
+			}
 		})
 	}
 
