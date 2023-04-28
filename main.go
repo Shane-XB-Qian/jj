@@ -43,9 +43,9 @@ type matched struct {
 	name     string
 	pos1     int
 	pos2     int
+	pseq     int
 	selected bool
 	index    int
-	pseq     int
 }
 
 var (
@@ -263,6 +263,7 @@ func filter(fuzzy bool) {
 				name:     f,
 				pos1:     -1,
 				pos2:     -1,
+				pseq:     -1,
 				selected: prevSelected,
 				index:    n,
 			}
@@ -304,9 +305,9 @@ func filter(fuzzy bool) {
 				name:     f,
 				pos1:     pos1,
 				pos2:     pos2 + 1,
+				pseq:     pos,
 				selected: prevSelected,
 				index:    len(tmp),
-				pseq:     pos,
 			})
 		}
 	} else {
@@ -394,10 +395,6 @@ func drawLines() {
 	width, height = termbox.Size()
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 
-	pat := ""
-	for _, r := range input {
-		pat += regexp.QuoteMeta(string(r)) + ".*?"
-	}
 	for n := offset; n <= height-3+offset; n++ {
 		if n >= len(current) {
 			break
@@ -406,6 +403,7 @@ func drawLines() {
 		name := current[n].name
 		pos1 := current[n].pos1
 		pos2 := current[n].pos2
+		pseq := current[n].pseq
 		selected := current[n].selected
 		if pos1 >= 0 {
 			pwidth := runewidth.StringWidth(string([]rune(current[n].name)[0:pos1]))
@@ -418,17 +416,15 @@ func drawLines() {
 						name = "..." + string(rname[i:])
 						pos1 -= i - 3
 						pos2 -= i - 3
+						pseq -= i - 3
 						break
 					}
 					wwidth += w
 				}
 			}
 		}
-		//  -- perhaps not redraw after resize..
-		//  -- specially 'height' after though..
-		// shane: should 'rwidth' vs 'swidth' ?!
-		//  -- looks would overflow if 'swidth'.
 		rwidth := len([]rune(name))
+		rinput := len([]rune(input))
 		if rwidth+2 > width {
 			name = string([]rune(name)[0:width-5]) + "..."
 		}
@@ -437,7 +433,15 @@ func drawLines() {
 			if x+w > width {
 				break
 			}
-			if pos1 <= f && f < pos2 {
+			if fuzzy && rinput > 0 && pseq > -1 && pseq <= f && f < pseq+rinput {
+				if selected {
+					termbox.SetCell(x, y, c, termbox.ColorMagenta|termbox.AttrBold, termbox.ColorDefault)
+				} else if cursorY == n {
+					termbox.SetCell(x, y, c, termbox.ColorMagenta|termbox.AttrBold|termbox.AttrUnderline, termbox.ColorDefault)
+				} else {
+					termbox.SetCell(x, y, c, termbox.ColorMagenta|termbox.AttrBold, termbox.ColorDefault)
+				}
+			} else if pos1 <= f && f < pos2 {
 				if selected {
 					termbox.SetCell(x, y, c, termbox.ColorRed|termbox.AttrBold, termbox.ColorDefault)
 				} else if cursorY == n {
