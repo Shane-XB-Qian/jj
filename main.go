@@ -604,13 +604,10 @@ func main() {
 	flag.Parse()
 
 	if showHelp {
-		fmt.Println("- Quick to Jump & Quick to Edit -")
-		fmt.Println("---------------------------------")
 		flag.Usage()
 		fmt.Println("---------------------------------")
-		fmt.Printf("ver: %s %s (rev:%s)\n", name, version, revision)
-		fmt.Println("---------------------------------")
-		fmt.Println("- Shane.Qian@foxmail.com @China -")
+		fmt.Println("- quick to jump & quick to edit -")
+		fmt.Println("- shane.qian@foxmail.com @china -")
 		return
 	}
 
