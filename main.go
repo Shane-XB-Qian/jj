@@ -299,13 +299,17 @@ func filter(fuzzy bool) {
 					break
 				}
 			}
+			poss := -1
+			if pos != -1 {
+				poss = len([]rune(f[:pos]))
+			}
 			pos1 := len([]rune(f[:pos_s]))
 			pos2 := len([]rune(f[:pos_e]))
 			tmp = append(tmp, matched{
 				name:     f,
 				pos1:     pos1,
 				pos2:     pos2 + 1,
-				pseq:     pos,
+				pseq:     poss,
 				selected: prevSelected,
 				index:    len(tmp),
 			})
