@@ -10,8 +10,8 @@
 
 ## Installation
 
-- `go get github.com/Shane-XB-Qian/jj` from this repo (or just download the bin `jj` from this repo).
-- pls think to write `alias jj='jj || if [ $? -eq 6 ]; then $(cat "$HOME/.jj_tmp_fs"); fi'` into your `.bashrc`.
+- `go get github.com/Shane-XB-Qian/jj` (or just download the bin `jj` from this repo).
+- please think to write `alias jj='jj || if [ $? -eq 6 ]; then $(cat "$HOME/.jj_tmp_fs"); fi'` into your `.bashrc`.
 
 ## Usage
 
@@ -19,8 +19,8 @@
 $ jj
 ```
 
-* Run `jj` and type `ctrl-o`, then start to edit `open2edit` with `vim`, whatever was a file or dir.
-* Run `jj` and type `enter`, then start to edit `open2edit` with `vim` if was a file, Or quit but `cd` to that dir `open2cd` if was a dir.
+* Run `jj` and emit `ctrl-o`, then start to edit `open2edit` with `vim`, whatever it was a file or dir.
+* Run `jj` and emit `enter`, then start to edit `open2edit` with `vim` if it was a file, or would quit but `cd` to that dir `open2cd` if it was a dir.
 
 - `fuzzy`   if to 'fuzzy' filter        -can be switched -when in `jj` -by `ctrl-r`.
 - `dirOnly` if to display/show dir only -can be switched -when in `jj` -by `ctrl-f`.
@@ -43,7 +43,7 @@ $ jj
 |-m            |Init with mru hist on            |
 |-d [path]     |Specify root directory           |
 
-- chk `-h` for detail.
+- check `-h` for detail.
 
 ## Keyboard shortcuts
 
