@@ -35,7 +35,7 @@ import (
 
 const name = "jj"
 
-const version = "0.0.7"
+const version = "0.0.8"
 
 var revision = "HEAD"
 
@@ -608,9 +608,10 @@ func main() {
 	flag.Parse()
 
 	if showHelp {
+		fmt.Println("- quick to jump & quick to edit -")
+		fmt.Println("---------------------------------")
 		flag.Usage()
 		fmt.Println("---------------------------------")
-		fmt.Println("- quick to jump & quick to edit -")
 		fmt.Println("- shane.qian@foxmail.com @china -")
 		return
 	}
@@ -962,7 +963,7 @@ loop:
 		mruListTmp = append(mruListTmp, faAbs)
 	}
 
-	f, err := os.OpenFile(getHomeDir()+"/"+mruStore, os.O_RDWR|os.O_CREATE|os.O_TRUNC|os.O_APPEND, 0600)
+	f, err := os.OpenFile(getHomeDir()+"/"+mruStore, os.O_RDWR|os.O_CREATE|os.O_TRUNC|os.O_APPEND, 0o600)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -995,7 +996,7 @@ loop:
 		}
 	} else {
 		// f, err := os.Create(getHomeDir()+"/"+mruTmpFs)
-		f, err := os.OpenFile(getHomeDir()+"/"+mruTmpFs, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
+		f, err := os.OpenFile(getHomeDir()+"/"+mruTmpFs, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
