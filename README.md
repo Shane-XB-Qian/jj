@@ -4,9 +4,9 @@
 
 ## Feature
 
-* similar & forked from [gof](https://github.com/mattn/gof.git) - thanks `mattn`.
-* but simplified just for independent `open2edit` or `open2cd` and extended a bit.
-* or at least `jj` should be a more quick / cool name .. :)
+* similar & forked from [gof](https://github.com/mattn/gof.git) (thanks `mattn`)
+* but simplified just for independent `open2edit` & `open2cd` and extended a bit!
+* or at least `jj` should be a more quick/cool name :smile:
 
 ## Installation
 
@@ -19,12 +19,12 @@
 $ jj
 ```
 
-* Run `jj` and emit `ctrl-o`, then start to edit `open2edit` with `vim`, whatever it was a file or dir.
-* Run `jj` and emit `enter`, then start to edit `open2edit` with `vim` if it was a file, or would quit but `cd` to that dir `open2cd` if it was a dir.
+* Run `jj` and emit `ctrl-o`, then start to edit (`open2edit`) with `vim`, whatever it was a file or dir.
+* Run `jj` and emit `<enter>`, then start to edit (`open2edit`) with `vim` if it was a file, or would quit but `cd` to that dir (`open2cd`) if it was a dir.
 
 - `fuzzy`   if to 'fuzzy' filter        -can be switched -when in `jj` -by `ctrl-r`.
 - `dirOnly` if to display/show dir only -can be switched -when in `jj` -by `ctrl-f`.
-- `mruHist` if to display/show mru hist -can be switched -when in `jj` -by `ctrl-v`.
+- `mruHist` if to display/show MRU hist -can be switched -when in `jj` -by `ctrl-v`.
 - `curOnly` if to display/show cur only -can be switched -when in `jj` -by `ctrl-\`.
 
 * cur only means only show fs under cur path -or 'cwd' (if set 'root dir')
@@ -84,5 +84,5 @@ MIT
 
 ## Note
 
-- mostly just a play to myself: only tested linux/bash and edit default with vim.
-- to simple cases should be just fine - quickly to jump/edit like some shell do..
+- mostly just a play to myself: only tested with linux/bash and edit default with vim.
+- to simple cases should be just fine: quick to jump/edit & have more fun with bash :smile:
