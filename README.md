@@ -5,8 +5,8 @@
 ## Feature
 
 * similar & forked from [gof](https://github.com/mattn/gof.git) (thanks `mattn`)
-* but simplified just for independent `open2edit` & `open2cd` and extended a bit!
-* or at least `jj` should be a more quick/cool name :smile:
+* but simplified it & extended just for independent `open2edit` `open2cd` & fun?
+* and bug fix & feat extend or at least `jj` should be a more quick/cool name :smile:
 
 ## Installation
 
@@ -32,6 +32,8 @@ $ jj
 
 * Tips: Use `tab` to complete dir.
 * Note: `mruHist` stored abs path.
+* Use `ctrl-z` to multi-selection,
+* but to `open2cd` only first one.
 
 ## Options
 
