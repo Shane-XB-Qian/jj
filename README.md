@@ -32,8 +32,7 @@ $ jj
 
 * Tips: Use `tab` to complete dir.
 * Note: `mruHist` stored abs path.
-* Use `ctrl-z` to multi-selection,
-* but to `open2cd` only first one.
+* Use `ctrl-z` if to multi-select, and/but to `open2cd` only the last one.
 
 ## Options
 

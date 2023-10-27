@@ -110,7 +110,6 @@ func getHomeDir() string {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
-		// shane: better return nil (vs exit) instead ?
 	}
 	return userHome
 }
@@ -118,23 +117,19 @@ func getHomeDir() string {
 func readFs(path string) []string {
 	f, err := os.Open(path)
 	if err != nil {
-		// fmt.Fprintln(os.Stderr, err)
-		// os.Exit(1)
+		if os.IsNotExist(err) {
+			return []string{}
+		}
 		return nil
-		// shane: mostly failed if not existed ?
 	}
 	defer f.Close()
 	tmp := []string{}
 	sc := bufio.NewScanner(f)
 	for sc.Scan() {
-		// fmt.Println(sc.Text())
 		tmp = append(tmp, sc.Text())
 	}
 	if err := sc.Err(); err != nil {
-		// fmt.Fprintln(os.Stderr, err)
-		// os.Exit(1)
 		return nil
-		// shane: somehow failed - return nil whatever ?
 	}
 	return tmp
 }
@@ -145,8 +140,8 @@ func filesIfMru() []string {
 	if !mruHist {
 		return files
 	}
-	tmp := readFs(getHomeDir() + "/" + mruStore)
 	tmpLen := 0
+	tmp := readFs(getHomeDir() + "/" + mruStore)
 	if tmp != nil {
 		tmpLen = len(tmp)
 	}
@@ -154,7 +149,7 @@ func filesIfMru() []string {
 	tmp2 := []string{}
 	if tmpLen > 0 {
 		for i := tmpLen - 1; i >= 0; i-- {
-			// shane: to make mru list showed as rel path of cwd ?
+			// shane: to make mru list showed as rel path of cwd?
 			// if rl_p, err := filepath.Rel(cwd, tmp[i]); err == nil {
 			// 	tmp2 = append(tmp2, rl_p)
 			// } else {
@@ -162,8 +157,6 @@ func filesIfMru() []string {
 			// }
 			tmp2 = append(tmp2, tmp[i])
 		}
-	} else {
-		return nil
 	}
 	return tmp2
 }
@@ -179,11 +172,9 @@ func filterIfDirOnly(fs []string) []string {
 	for _, f := range fs {
 		fi, err := os.Stat(f)
 		if err != nil {
-			// fmt.Fprintln(os.Stderr, err)
-			// os.Exit(1)
 			continue
-			// XXX: may fail - just ignore such ?
-			// shane: mostly looks due to auth ?!
+			// XXX: may fail? just ignore such?
+			// shane: mostly looks due to auth?
 		}
 		if fi.IsDir() {
 			tmp = append(tmp, f)
@@ -930,7 +921,7 @@ loop:
 	if root != "" && !mruHist {
 		for _, f := range selected {
 			fArg = append(fArg, filepath.Join(root, f))
-			// XXX: should use 'cwd' instead of 'root' ?
+			// XXX: should use 'cwd' instead of 'root'?
 		}
 	} else {
 		fArg = append(fArg, selected...)
@@ -994,7 +985,7 @@ loop:
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-	} else {
+	} else { // shane: was this possible unexpected case?
 		// f, err := os.Create(getHomeDir()+"/"+mruTmpFs)
 		f, err := os.OpenFile(getHomeDir()+"/"+mruTmpFs, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o600)
 		if err != nil {
