@@ -976,7 +976,7 @@ loop:
 		os.Exit(1)
 	}
 	if open2edit || (open2CdOrEdit && !fi.IsDir()) {
-		cmd := exec.Command("vim", fArg...)
+		cmd := exec.Command("vim", append([]string{"-p"}, fArg...)...)
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
