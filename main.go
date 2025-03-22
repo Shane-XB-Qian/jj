@@ -460,7 +460,8 @@ func drawLines() {
 		tprint(0, height-3-(cursorY-offset), termbox.ColorRed|termbox.AttrBold, termbox.ColorDefault, "> ")
 	}
 	if scanning >= 0 {
-		tprint(0, height-2, termbox.ColorGreen, termbox.ColorDefault, string([]rune("-\\|/")[scanning%4]))
+		// tprint(0, height-2, termbox.ColorGreen, termbox.ColorDefault, string([]rune("-\\|/")[scanning%4]))
+		tprint(0, height-2, termbox.ColorGreen, termbox.ColorDefault, string([]rune("👷 ")[scanning%2]))
 		scanning++
 	}
 	if mruHist {
